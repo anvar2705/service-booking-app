@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+    # api:
+    #   build: .
+    #   depends_on:
+    #     - db
+    #     - migration
+    #   command: npm run start:prod
+    #   ports:
+    #     - '5000:5000'
+    # migration:
+    #   build: .
+    #   depends_on:
+    #     - db
+    #   command: npm run migration:run:prod
+    db:
+        image: 'postgres'
+        restart: always
+        environment:
+            POSTGRES_DB: 'postgres'
+            POSTGRES_USER: 'postgres'
+            POSTGRES_PASSWORD: '12345'
+        ports:
+            - '5438:5432'
