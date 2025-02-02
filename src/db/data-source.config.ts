@@ -16,6 +16,6 @@ export const dbConfiguration = registerAs(
         // migrations: ['dist/db/migrations/*.js'],
         migrationsTableName: ConfigEnum.MIGRATIONS_TABLE_NAME,
         migrationsRun: false,
-        synchronize: false,
+        synchronize: true,
     }),
 );

@@ -4,7 +4,8 @@ import { getEnvPath } from 'common/helpers/env.helper';
 import { ConfigEnum } from 'common';
 import { dbConfiguration } from 'db/data-source.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './models/user/user.module';
+import { UserModule } from 'models/user';
+import { IamModule } from 'models/iam';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { UserModule } from './models/user/user.module';
                 configService.get(ConfigEnum.DB_CONFIG_KEY),
         }),
         UserModule,
+        IamModule,
     ],
     controllers: [],
     providers: [],
