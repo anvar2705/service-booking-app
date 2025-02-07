@@ -39,10 +39,9 @@ export class AuthenticationGuard implements CanActivate {
         }
 
         try {
-            const payload: ActiveUserData = await this.jwtService.verifyAsync(
-                token,
-                this.jwtConfiguration,
-            );
+            const payload = await this.jwtService.verifyAsync<
+                Partial<ActiveUserData>
+            >(token, this.jwtConfiguration);
 
             request[REQUEST_USER_KEY] = payload;
         } catch (e) {

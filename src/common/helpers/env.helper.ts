@@ -11,6 +11,5 @@ export function getEnvPath(dest: string): string {
         filePath = fallback;
     }
 
-    console.log('filePath', filePath);
     return filePath;
 }
