@@ -4,8 +4,8 @@ import { getEnvPath } from 'common/helpers/env.helper';
 import { ConfigEnum } from 'common';
 import { dbConfiguration } from 'db/data-source.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from 'models/user';
-import { IamModule } from 'models/iam';
+import { UserModule } from 'models/user/user.module';
+import { IamModule } from 'models/iam/iam.module';
 
 @Module({
     imports: [

@@ -11,6 +11,7 @@ import { ConfigType } from '@nestjs/config';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY, REQUEST_USER_KEY } from '../constants';
 import { Reflector } from '@nestjs/core';
+import { ActiveUserData } from '../decorators';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -38,7 +39,7 @@ export class AuthenticationGuard implements CanActivate {
         }
 
         try {
-            const payload = await this.jwtService.verifyAsync(
+            const payload: ActiveUserData = await this.jwtService.verifyAsync(
                 token,
                 this.jwtConfiguration,
             );
