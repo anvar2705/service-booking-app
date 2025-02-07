@@ -1,5 +1,6 @@
 export const ConfigEnum = Object.freeze({
-    DB_CONNECTION_NAME: 'nest-auth-v2-connection',
     DB_CONFIG_KEY: 'database',
-    MIGRATIONS_TABLE_NAME: 'migrations',
+    DB_CONNECTION_NAME: 'nest-auth-v2-connection',
+    DB_MIGRATIONS_TABLE_NAME: 'migrations',
+    JWT_CONFIG_KEY: 'jwt',
 } as const);

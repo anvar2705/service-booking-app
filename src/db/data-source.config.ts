@@ -14,7 +14,7 @@ export const dbConfiguration = registerAs(
         database: process.env.POSTGRES_DB,
         entities: ['dist/**/*.entity.js'],
         // migrations: ['dist/db/migrations/*.js'],
-        migrationsTableName: ConfigEnum.MIGRATIONS_TABLE_NAME,
+        migrationsTableName: ConfigEnum.DB_MIGRATIONS_TABLE_NAME,
         migrationsRun: false,
         synchronize: true,
     }),
