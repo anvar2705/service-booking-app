@@ -9,12 +9,17 @@ import { jwtConfig } from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './guards/authentication.guard';
+import { RefreshTokenIdsStorage } from './authentication/refresh-token-ids.storage';
+import { redisConfig } from './config/redis.config';
 
 @Module({
     imports: [
         UserModule,
         JwtModule.registerAsync(jwtConfig.asProvider()),
         ConfigModule.forFeature(jwtConfig),
+        ConfigModule.forRoot({
+            load: [redisConfig],
+        }),
     ],
     providers: [
         {
@@ -26,6 +31,7 @@ import { AuthenticationGuard } from './guards/authentication.guard';
             useClass: AuthenticationGuard,
         },
         AuthenticationService,
+        RefreshTokenIdsStorage,
     ],
     controllers: [AuthenticationController],
 })
