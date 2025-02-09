@@ -9,9 +9,10 @@ import { JwtService } from '@nestjs/jwt';
 import { jwtConfig } from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { Request } from 'express';
-import { IS_PUBLIC_KEY, REQUEST_USER_KEY } from '../constants';
 import { Reflector } from '@nestjs/core';
 import { ActiveUserData } from '../decorators';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { REQUEST_USER_KEY } from '../decorators/active-user.decorator';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -19,7 +20,7 @@ export class AuthenticationGuard implements CanActivate {
         private readonly jwtService: JwtService,
         @Inject(jwtConfig.KEY)
         private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-        private reflector: Reflector,
+        private readonly reflector: Reflector,
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {

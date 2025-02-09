@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { HashingService } from './hashing/hashing.service';
 import { BcryptService } from './hashing/bcrypt.service';
 import { AuthenticationController } from './authentication/authentication.controller';
@@ -11,10 +11,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { RefreshTokenIdsStorage } from './authentication/refresh-token-ids.storage';
 import { redisConfig } from './config/redis.config';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
     imports: [
-        UserModule,
+        forwardRef(() => UserModule),
         JwtModule.registerAsync(jwtConfig.asProvider()),
         ConfigModule.forFeature(jwtConfig),
         ConfigModule.forRoot({
@@ -30,9 +31,14 @@ import { redisConfig } from './config/redis.config';
             provide: APP_GUARD,
             useClass: AuthenticationGuard,
         },
+        {
+            provide: APP_GUARD,
+            useClass: RolesGuard,
+        },
         AuthenticationService,
         RefreshTokenIdsStorage,
     ],
     controllers: [AuthenticationController],
+    exports: [HashingService],
 })
 export class IamModule {}

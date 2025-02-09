@@ -6,11 +6,16 @@ import {
     Param,
     Delete,
     Query,
+    Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { Roles } from 'models/iam/decorators/roles.decorator';
+import { RolesEnum } from 'models/iam/constants';
+import { CreateUserDto } from './dto/create-user.dto';
 
+@Roles([RolesEnum.ADMIN])
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
@@ -25,6 +30,11 @@ export class UserController {
         return this.userService.findById(+id);
     }
 
+    @Post()
+    create(@Body() dto: CreateUserDto) {
+        return this.userService.create(dto);
+    }
+
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
         return this.userService.update(+id, updateUserDto);
@@ -32,6 +42,6 @@ export class UserController {
 
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.userService.remove(+id);
+        return this.userService.delete(+id);
     }
 }

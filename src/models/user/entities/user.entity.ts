@@ -1,3 +1,5 @@
+import { RolesEnum } from 'models/iam/constants';
+import { Role } from 'models/iam/types';
 import {
     Column,
     CreateDateColumn,
@@ -16,6 +18,9 @@ export class User {
 
     @Column({ type: 'varchar', nullable: false, select: false })
     password: string;
+
+    @Column({ enum: RolesEnum, default: RolesEnum.USER })
+    role: Role;
 
     @CreateDateColumn()
     public created_at: Date;

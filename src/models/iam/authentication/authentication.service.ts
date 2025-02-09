@@ -26,8 +26,7 @@ export class AuthenticationService {
     ) {}
 
     async signUp(dto: SignUpDto) {
-        const hashedPassword = await this.hashingService.hash(dto.password);
-        return this.userService._create({ ...dto, password: hashedPassword });
+        return this.userService.create(dto);
     }
 
     async signIn(dto: SignInDto) {
@@ -83,10 +82,10 @@ export class AuthenticationService {
         const refreshTokenId = randomUUID();
 
         const [accessToken, refreshToken] = await Promise.all([
-            this.signToken<Pick<ActiveUserData, 'email'>>(
+            this.signToken<Pick<ActiveUserData, 'email' | 'role'>>(
                 user.id,
                 Number(this.jwtConfiguration.accessTokenTTL),
-                { email: user.email },
+                { email: user.email, role: user.role },
             ),
             this.signToken(
                 user.id,
