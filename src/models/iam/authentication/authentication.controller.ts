@@ -1,7 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+
 import { AuthenticationService } from './authentication.service';
-import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 import { Public } from '../decorators/public.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 

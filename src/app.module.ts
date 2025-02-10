@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { getEnvPath } from 'common/helpers/env.helper';
-import { ConfigEnum } from 'common';
-import { dbConfiguration } from 'db/data-source.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from 'models/user/user.module';
+
+import { ConfigEnum } from 'common';
+import { getEnvPath } from 'common/helpers/env.helper';
+import { dbConfiguration } from 'db/data-source.config';
 import { IamModule } from 'models/iam/iam.module';
+import { UserModule } from 'models/user/user.module';
 
 @Module({
     imports: [

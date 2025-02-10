@@ -1,5 +1,3 @@
-import { RolesEnum } from 'models/iam/constants';
-import { Role } from 'models/iam/types';
 import {
     Column,
     CreateDateColumn,
@@ -7,6 +5,9 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+
+import { RolesEnum } from 'models/iam/constants';
+import { Role } from 'models/iam/types';
 
 @Entity()
 export class User {

@@ -4,15 +4,17 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { FindAllQueryDto } from './dto/find-all-query.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { ConfigEnum } from 'common';
 import { Repository } from 'typeorm';
+
+import { ConfigEnum } from 'common';
 import { WithPagination } from 'common/types';
-import { CreateUserDto } from './dto/create-user.dto';
 import { HashingService } from 'models/iam/hashing/hashing.service';
+
+import { CreateUserDto } from './dto/create-user.dto';
+import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {

@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+
 import { ConfigEnum } from 'common';
 
 export const jwtConfig = registerAs(ConfigEnum.JWT_CONFIG_KEY, () => ({

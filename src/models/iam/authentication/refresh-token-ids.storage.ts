@@ -4,9 +4,10 @@ import {
     OnApplicationBootstrap,
     OnApplicationShutdown,
 } from '@nestjs/common';
-import Redis from 'ioredis';
-import { redisConfig } from '../config/redis.config';
 import { ConfigType } from '@nestjs/config';
+import Redis from 'ioredis';
+
+import { redisConfig } from '../config/redis.config';
 
 @Injectable()
 export class RefreshTokenIdsStorage

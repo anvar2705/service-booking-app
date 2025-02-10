@@ -1,4 +1,5 @@
 import { IsEmail, Length, IsOptional } from 'class-validator';
+
 import { Role } from 'models/iam/types';
 
 export class CreateUserDto {

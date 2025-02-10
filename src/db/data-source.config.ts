@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
-import { ConfigEnum } from 'common';
 import { DataSourceOptions } from 'typeorm';
+
+import { ConfigEnum } from 'common';
 
 export const dbConfiguration = registerAs(
     ConfigEnum.DB_CONFIG_KEY,

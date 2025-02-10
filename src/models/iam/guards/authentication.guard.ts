@@ -5,14 +5,15 @@ import {
     Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { jwtConfig } from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
-import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+
+import { jwtConfig } from '../config/jwt.config';
 import { ActiveUserData } from '../decorators';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { REQUEST_USER_KEY } from '../decorators/active-user.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {

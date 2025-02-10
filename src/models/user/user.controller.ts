@@ -8,12 +8,14 @@ import {
     Query,
     Post,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { FindAllQueryDto } from './dto/find-all-query.dto';
-import { Roles } from 'models/iam/decorators/roles.decorator';
+
 import { RolesEnum } from 'models/iam/constants';
+import { Roles } from 'models/iam/decorators/roles.decorator';
+
 import { CreateUserDto } from './dto/create-user.dto';
+import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 @Roles([RolesEnum.ADMIN])
 @Controller('user')

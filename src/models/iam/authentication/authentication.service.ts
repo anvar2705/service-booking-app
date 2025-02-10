@@ -1,15 +1,18 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { SignInDto } from './dto/sign-in.dto';
-import { UserService } from 'models/user/user.service';
-import { SignUpDto } from './dto/sign-up.dto';
-import { HashingService } from '../hashing/hashing.service';
-import { JwtService } from '@nestjs/jwt';
-import { jwtConfig } from '../config/jwt.config';
-import { ConfigType } from '@nestjs/config';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { User } from 'models/user/entities/user.entity';
-import { ActiveUserData } from '../decorators';
 import { randomUUID } from 'crypto';
+
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+
+import { User } from 'models/user/entities/user.entity';
+import { UserService } from 'models/user/user.service';
+
+import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { jwtConfig } from '../config/jwt.config';
+import { ActiveUserData } from '../decorators';
+import { HashingService } from '../hashing/hashing.service';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RefreshTokenIdsStorage } from './refresh-token-ids.storage';
 
 export class InvalidatedRefreshTokenError extends Error {}
