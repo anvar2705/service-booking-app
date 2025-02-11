@@ -64,7 +64,7 @@ export class UserService {
         return user;
     }
 
-    async create(dto: CreateUserDto) {
+    async create(dto: CreateUserDto): Promise<User> {
         const { email, password, roles } = dto;
 
         await this._validateUser(dto.email);
@@ -90,13 +90,14 @@ export class UserService {
                 }
             }
 
-            await this.userRepository.save(user);
+            const createdUser = await this.userRepository.save(user);
+            return { ...createdUser, password: undefined };
         } catch (error) {
             throw error;
         }
     }
 
-    async update(id: number, dto: UpdateUserDto) {
+    async update(id: number, dto: UpdateUserDto): Promise<User> {
         const { roles, ...dtoWithoutRoles } = dto;
         const newHashedPassword = dto.password
             ? await this.hashingService.hash(dto.password)

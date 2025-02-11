@@ -7,6 +7,7 @@ import {
     Delete,
     Query,
     Post,
+    ParseIntPipe,
 } from '@nestjs/common';
 
 import { Roles } from 'models/iam/decorators/roles.decorator';
@@ -28,8 +29,8 @@ export class UserController {
     }
 
     @Get(':id')
-    findById(@Param('id') id: string) {
-        return this.userService.findById(+id);
+    findById(@Param('id', new ParseIntPipe()) id: number) {
+        return this.userService.findById(id);
     }
 
     @Post()
@@ -38,12 +39,15 @@ export class UserController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        return this.userService.update(+id, updateUserDto);
+    update(
+        @Param('id', new ParseIntPipe()) id: number,
+        @Body() updateUserDto: UpdateUserDto,
+    ) {
+        return this.userService.update(id, updateUserDto);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.userService.delete(+id);
+    remove(@Param('id', new ParseIntPipe()) id: number) {
+        return this.userService.delete(id);
     }
 }

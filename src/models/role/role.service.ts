@@ -26,6 +26,7 @@ export class RoleService {
             order: {
                 id: 'ASC',
             },
+            select: ['id', 'name', 'created_at', 'updated_at'],
         });
 
         return { total, offset: 0, items };
@@ -51,7 +52,7 @@ export class RoleService {
         return role;
     }
 
-    async create(dto: CreateRoleDto) {
+    async create(dto: CreateRoleDto): Promise<Role> {
         const { name } = dto;
 
         await this._validateRole(name);
@@ -60,17 +61,17 @@ export class RoleService {
             const role = new Role();
             role.name = name;
 
-            await this.roleRepository.save(role);
+            return await this.roleRepository.save(role);
         } catch (error) {
             throw error;
         }
     }
 
-    async update(id: number, dto: UpdateRoleDto) {
-        const role = await this.roleRepository.update(id, {
+    async update(id: number, dto: UpdateRoleDto): Promise<Role> {
+        await this.roleRepository.update(id, {
             ...dto,
         });
-        return role;
+        return await this.findById(id);
     }
 
     async delete(id: number) {

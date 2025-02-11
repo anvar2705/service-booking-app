@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     Param,
+    ParseIntPipe,
     Patch,
     Post,
 } from '@nestjs/common';
@@ -26,8 +27,8 @@ export class RoleController {
     }
 
     @Get(':id')
-    findById(@Param('id') id: string) {
-        return this.roleService.findById(+id);
+    findById(@Param('id', new ParseIntPipe()) id: number) {
+        return this.roleService.findById(id);
     }
 
     @Post()
@@ -36,12 +37,15 @@ export class RoleController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-        return this.roleService.update(+id, updateRoleDto);
+    update(
+        @Param('id', new ParseIntPipe()) id: number,
+        @Body() updateRoleDto: UpdateRoleDto,
+    ) {
+        return this.roleService.update(id, updateRoleDto);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.roleService.delete(+id);
+    remove(@Param('id', new ParseIntPipe()) id: number) {
+        return this.roleService.delete(id);
     }
 }

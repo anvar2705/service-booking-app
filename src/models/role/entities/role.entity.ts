@@ -20,9 +20,9 @@ export class Role {
     @ManyToMany(() => User, (user) => user.roles)
     users: User[];
 
-    @CreateDateColumn()
+    @CreateDateColumn({ select: false })
     public created_at: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ select: false })
     public updated_at: Date;
 }
