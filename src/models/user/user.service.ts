@@ -10,7 +10,9 @@ import { Repository } from 'typeorm';
 import { ConfigEnum } from 'common';
 import { WithPagination } from 'common/types';
 import { HashingService } from 'models/iam/hashing/hashing.service';
+import { RoleService } from 'models/role/role.service';
 
+import { DEFAULT_ROLE } from './constants';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindAllQueryDto } from './dto/find-all-query.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,6 +24,7 @@ export class UserService {
         @InjectRepository(User, ConfigEnum.DB_CONNECTION_NAME)
         private userRepository: Repository<User>,
         private readonly hashingService: HashingService,
+        private readonly roleService: RoleService,
     ) {}
 
     async findAll(query: FindAllQueryDto): Promise<WithPagination<User>> {
@@ -52,7 +55,7 @@ export class UserService {
     async _findByEmail(email: string): Promise<User> {
         const user = await this.userRepository.findOne({
             where: { email },
-            select: ['id', 'email', 'password', 'role'],
+            select: ['id', 'email', 'password'],
         });
 
         if (!user) {
@@ -62,7 +65,7 @@ export class UserService {
     }
 
     async create(dto: CreateUserDto) {
-        const { email, password, role } = dto;
+        const { email, password, roles } = dto;
 
         await this._validateUser(dto.email);
 
@@ -70,7 +73,22 @@ export class UserService {
             const user = new User();
             user.email = email;
             user.password = await this.hashingService.hash(password);
-            user.role = role;
+            user.roles = [];
+
+            if (!roles) {
+                const defaultUserRole =
+                    await this.roleService.findByName(DEFAULT_ROLE);
+                if (defaultUserRole) {
+                    user.roles = [defaultUserRole];
+                }
+            } else if (roles.length > 0) {
+                for (const roleId of roles) {
+                    const role = await this.roleService.findById(roleId);
+                    if (role) {
+                        user.roles.push(role);
+                    }
+                }
+            }
 
             await this.userRepository.save(user);
         } catch (error) {
@@ -78,16 +96,33 @@ export class UserService {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async update(id: number, dto: UpdateUserDto) {
-        const { password } = dto;
-        const newHashedPassword = password
-            ? await this.hashingService.hash(password)
+        const { roles, ...dtoWithoutRoles } = dto;
+        const newHashedPassword = dto.password
+            ? await this.hashingService.hash(dto.password)
             : undefined;
-        const user = await this.userRepository.update(id, {
-            ...dto,
+
+        await this.userRepository.update(id, {
+            ...dtoWithoutRoles,
             password: newHashedPassword,
         });
+
+        const newRoles = [];
+        const user = await this.findById(id);
+
+        if (user && roles && roles.length > 0) {
+            for (const roleId of roles) {
+                const role = await this.roleService.findById(roleId);
+                if (role) {
+                    newRoles.push(role);
+                }
+            }
+
+            user.roles = newRoles;
+
+            return this.userRepository.save(user);
+        }
+
         return user;
     }
 
@@ -95,7 +130,7 @@ export class UserService {
         return this.userRepository.delete(id);
     }
 
-    async _validateUser(email: string, id?: number) {
+    private async _validateUser(email: string, id?: number) {
         let currentEmail;
         if (id !== undefined) {
             const currenUser = await this.findById(id);

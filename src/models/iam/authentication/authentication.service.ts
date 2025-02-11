@@ -4,6 +4,7 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
+import { Role } from 'models/role/types';
 import { User } from 'models/user/entities/user.entity';
 import { UserService } from 'models/user/user.service';
 
@@ -85,10 +86,13 @@ export class AuthenticationService {
         const refreshTokenId = randomUUID();
 
         const [accessToken, refreshToken] = await Promise.all([
-            this.signToken<Pick<ActiveUserData, 'email' | 'role'>>(
+            this.signToken<Pick<ActiveUserData, 'email' | 'roles'>>(
                 user.id,
                 Number(this.jwtConfiguration.accessTokenTTL),
-                { email: user.email, role: user.role },
+                {
+                    email: user.email,
+                    roles: user.roles.map((r) => r.name as Role),
+                },
             ),
             this.signToken(
                 user.id,

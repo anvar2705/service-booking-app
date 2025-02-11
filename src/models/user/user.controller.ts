@@ -9,8 +9,8 @@ import {
     Post,
 } from '@nestjs/common';
 
-import { RolesEnum } from 'models/iam/constants';
 import { Roles } from 'models/iam/decorators/roles.decorator';
+import { RolesEnum } from 'models/role/constants';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindAllQueryDto } from './dto/find-all-query.dto';

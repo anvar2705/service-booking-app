@@ -1,11 +1,11 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-import { Role } from '../types';
+import { Role } from 'models/role/types';
 
 export interface ActiveUserData {
     sub: number;
     email: string;
-    role?: Role;
+    roles: Role[];
 }
 
 export const REQUEST_USER_KEY = 'user';

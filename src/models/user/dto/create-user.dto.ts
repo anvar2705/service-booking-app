@@ -1,6 +1,10 @@
-import { IsEmail, Length, IsOptional } from 'class-validator';
-
-import { Role } from 'models/iam/types';
+import {
+    IsEmail,
+    Length,
+    IsOptional,
+    IsArray,
+    IsNumber,
+} from 'class-validator';
 
 export class CreateUserDto {
     @IsEmail()
@@ -11,5 +15,7 @@ export class CreateUserDto {
     password: string;
 
     @IsOptional()
-    role?: Role;
+    @IsArray()
+    @IsNumber({}, { each: true })
+    roles?: number[];
 }

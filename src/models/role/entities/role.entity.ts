@@ -2,28 +2,23 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    JoinTable,
     ManyToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 
-import { Role } from 'models/role/entities/role.entity';
+import { User } from 'models/user/entities/user.entity';
 
 @Entity()
-export class User {
+export class Role {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column({ type: 'varchar', nullable: false, unique: true })
-    email: string;
+    name: string;
 
-    @Column({ type: 'varchar', nullable: false, select: false })
-    password: string;
-
-    @ManyToMany(() => Role, (role) => role.users, { eager: true })
-    @JoinTable()
-    roles: Role[];
+    @ManyToMany(() => User, (user) => user.roles)
+    users: User[];
 
     @CreateDateColumn()
     public created_at: Date;
