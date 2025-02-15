@@ -12,3 +12,14 @@ export const loginAsAdmin = async () => {
 
     return response.accessToken;
 };
+
+export const loginAsUser = async () => {
+    const response = (
+        await request(API_URL).post('/auth/login').send({
+            email: 'user@mail.ru',
+            password: '12345',
+        })
+    ).body;
+
+    return response.accessToken;
+};

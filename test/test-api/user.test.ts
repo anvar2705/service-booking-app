@@ -4,7 +4,7 @@ import { CreateUserDto } from 'models/user/dto/create-user.dto';
 import { UpdateUserDto } from 'models/user/dto/update-user.dto';
 
 import { API_URL } from './constants';
-import { loginAsAdmin } from './utils';
+import { loginAsAdmin, loginAsUser } from './utils';
 
 describe('user module', () => {
     let accessToken = null;
@@ -21,8 +21,39 @@ describe('user module', () => {
         roles: [1, 2],
     };
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         accessToken = await loginAsAdmin();
+    });
+
+    it('chenk authorization', async () => {
+        const accessTokenUser = await loginAsUser();
+
+        await request(API_URL)
+            .post('/user')
+            .send(newUserDto)
+            .set('Authorization', `Bearer ${accessTokenUser}`)
+            .expect(401);
+
+        await request(API_URL)
+            .patch(`/user/500`)
+            .send(newUserDto)
+            .set('Authorization', `Bearer ${accessTokenUser}`)
+            .expect(401);
+
+        await request(API_URL)
+            .get(`/user`)
+            .set('Authorization', `Bearer ${accessTokenUser}`)
+            .expect(401);
+
+        await request(API_URL)
+            .get(`/user/500`)
+            .set('Authorization', `Bearer ${accessTokenUser}`)
+            .expect(401);
+
+        await request(API_URL)
+            .delete(`/user/500`)
+            .set('Authorization', `Bearer ${accessTokenUser}`)
+            .expect(401);
     });
 
     it('create a new user', async () => {
@@ -103,8 +134,8 @@ describe('user module', () => {
 
         expect(typeof foundUser.id).toBe('number');
         expect(foundUser.roles).toStrictEqual([
-            { id: 1, name: 'ADMIN' },
             { id: 2, name: 'USER' },
+            { id: 1, name: 'ADMIN' },
         ]);
     });
 
