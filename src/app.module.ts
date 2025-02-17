@@ -6,6 +6,7 @@ import { ConfigEnum } from 'common';
 import { getEnvPath } from 'common/helpers/env.helper';
 import { dbConfiguration } from 'db/data-source.config';
 import { IamModule } from 'models/iam/iam.module';
+import { RecordModule } from 'models/record/record.module';
 import { RoleModule } from 'models/role/role.module';
 import { ServiceModule } from 'models/service/service.module';
 import { UserModule } from 'models/user/user.module';
@@ -27,6 +28,7 @@ import { UserModule } from 'models/user/user.module';
         IamModule,
         RoleModule,
         ServiceModule,
+        RecordModule,
     ],
     controllers: [],
     providers: [],

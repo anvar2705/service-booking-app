@@ -14,7 +14,7 @@ import { Roles } from 'models/iam/decorators/roles.decorator';
 import { RolesEnum } from 'models/role/constants';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { FindAllUsersDto } from './dto/find-all-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
@@ -24,8 +24,8 @@ export class UserController {
     constructor(private readonly userService: UserService) {}
 
     @Get()
-    findAll(@Query() query: FindAllQueryDto) {
-        return this.userService.findAll(query);
+    findAll(@Query() dto: FindAllUsersDto) {
+        return this.userService.findAll(dto);
     }
 
     @Get(':id')

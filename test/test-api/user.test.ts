@@ -134,8 +134,8 @@ describe('user module', () => {
 
         expect(typeof foundUser.id).toBe('number');
         expect(foundUser.roles).toStrictEqual([
-            { id: 2, name: 'USER' },
             { id: 1, name: 'ADMIN' },
+            { id: 2, name: 'USER' },
         ]);
     });
 

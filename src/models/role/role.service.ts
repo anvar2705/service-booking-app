@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
-import { WithPagination } from 'common/types';
+import { WithPaginationResponse } from 'common/types';
 
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -18,10 +18,10 @@ import { Role } from './entities/role.entity';
 export class RoleService {
     constructor(
         @InjectRepository(Role, ConfigEnum.DB_CONNECTION_NAME)
-        private roleRepository: Repository<Role>,
+        private readonly roleRepository: Repository<Role>,
     ) {}
 
-    async findAll(): Promise<WithPagination<Role>> {
+    async findAll(): Promise<WithPaginationResponse<Role>> {
         const [items, total] = await this.roleRepository.findAndCount({
             order: {
                 id: 'ASC',

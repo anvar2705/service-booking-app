@@ -7,10 +7,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
-import { WithPagination } from 'common/types';
+import { WithPaginationResponse } from 'common/types';
+import { getPagPayload } from 'common/utils';
 
 import { CreateServiceDto } from './dto/create-service.dto';
-import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { FindAllServicesDto } from './dto/find-all-services.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { Service } from './entities/service.entity';
 
@@ -18,11 +19,11 @@ import { Service } from './entities/service.entity';
 export class ServiceService {
     constructor(
         @InjectRepository(Service, ConfigEnum.DB_CONNECTION_NAME)
-        private serviceRepository: Repository<Service>,
+        private readonly serviceRepository: Repository<Service>,
     ) {}
 
-    async create(createServiceDto: CreateServiceDto): Promise<Service> {
-        const { name, priceFrom, priceTo, duration, type } = createServiceDto;
+    async create(dto: CreateServiceDto): Promise<Service> {
+        const { name } = dto;
 
         const sameNameService = await this.serviceRepository.findOneBy({
             name,
@@ -32,25 +33,21 @@ export class ServiceService {
             throw new BadRequestException('Service with the same name exists');
         }
 
-        const service = new Service();
-        service.name = name;
-        service.priceFrom = priceFrom;
-        service.priceTo = priceTo;
-        service.duration = duration;
-        service.type = type;
+        const service = this.serviceRepository.create(dto);
 
         return this.serviceRepository.save(service);
     }
 
-    async findAll(dto: FindAllQueryDto): Promise<WithPagination<Service>> {
-        const { page, page_size } = dto;
-        const offset = (page - 1) * page_size;
+    async findAll(
+        dto: FindAllServicesDto,
+    ): Promise<WithPaginationResponse<Service>> {
+        const { offset, payload } = getPagPayload(dto);
+
         const [items, total] = await this.serviceRepository.findAndCount({
             order: {
                 name: 'ASC',
             },
-            take: page_size,
-            skip: offset,
+            ...payload,
         });
         return { total, offset, items };
     }

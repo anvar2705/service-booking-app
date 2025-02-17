@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { CreateServiceDto } from './dto/create-service.dto';
-import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { FindAllServicesDto } from './dto/find-all-services.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { ServiceService } from './service.service';
 
@@ -20,12 +20,12 @@ export class ServiceController {
     constructor(private readonly serviceService: ServiceService) {}
 
     @Post()
-    create(@Body() createServiceDto: CreateServiceDto) {
-        return this.serviceService.create(createServiceDto);
+    create(@Body() dto: CreateServiceDto) {
+        return this.serviceService.create(dto);
     }
 
     @Get()
-    findAll(@Query() dto: FindAllQueryDto) {
+    findAll(@Query() dto: FindAllServicesDto) {
         return this.serviceService.findAll(dto);
     }
 
@@ -37,9 +37,9 @@ export class ServiceController {
     @Patch(':uuid')
     update(
         @Param('uuid', new ParseUUIDPipe()) uuid: string,
-        @Body() updateServiceDto: UpdateServiceDto,
+        @Body() dto: UpdateServiceDto,
     ) {
-        return this.serviceService.update(uuid, updateServiceDto);
+        return this.serviceService.update(uuid, dto);
     }
 
     @Delete(':uuid')

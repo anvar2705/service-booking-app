@@ -2,9 +2,12 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+
+import { Record } from 'models/record/entities/record.entity';
 
 import { ServiceTypeEnum } from '../constants';
 
@@ -31,6 +34,9 @@ export class Service {
         default: ServiceTypeEnum.PERSONAL,
     })
     type: string;
+
+    @OneToMany(() => Record, (record) => record.service)
+    records: Record[];
 
     @CreateDateColumn()
     public created_at: Date;

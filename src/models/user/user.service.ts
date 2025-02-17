@@ -8,13 +8,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
-import { WithPagination } from 'common/types';
+import { WithPaginationResponse } from 'common/types';
+import { getPagPayload } from 'common/utils';
 import { HashingService } from 'models/iam/hashing/hashing.service';
 import { RoleService } from 'models/role/role.service';
 
 import { DEFAULT_ROLE } from './constants';
 import { CreateUserDto } from './dto/create-user.dto';
-import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { FindAllUsersDto } from './dto/find-all-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -22,21 +23,22 @@ import { User } from './entities/user.entity';
 export class UserService {
     constructor(
         @InjectRepository(User, ConfigEnum.DB_CONNECTION_NAME)
-        private userRepository: Repository<User>,
+        private readonly userRepository: Repository<User>,
         private readonly hashingService: HashingService,
         private readonly roleService: RoleService,
     ) {}
 
-    async findAll(query: FindAllQueryDto): Promise<WithPagination<User>> {
-        const { email, page, page_size } = query;
-        const offset = (page - 1) * page_size;
+    async findAll(dto: FindAllUsersDto): Promise<WithPaginationResponse<User>> {
+        const { email } = dto;
+
+        const { offset, payload } = getPagPayload(dto);
+
         const [items, total] = await this.userRepository.findAndCount({
             order: {
                 id: 'ASC',
             },
-            take: page_size,
-            skip: offset,
             where: { email },
+            ...payload,
         });
 
         return { total, offset, items };
