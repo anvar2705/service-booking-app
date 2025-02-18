@@ -8,13 +8,13 @@ import {
 
 export class CreateRecordDto {
     @IsOptional()
-    clientName?: string;
+    client_name?: string;
 
     @IsOptional()
-    clientPhone?: string;
+    client_phone?: string;
 
     @IsDateString()
-    timeStart: string;
+    time_start: string;
 
     @IsNumber()
     duration: number;

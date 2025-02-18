@@ -11,7 +11,7 @@ export class CreateEmployeeDto {
     patronymic?: string;
 
     @IsOptional()
-    photoUrl?: string;
+    photo_url?: string;
 
     @IsOptional()
     @IsArray()

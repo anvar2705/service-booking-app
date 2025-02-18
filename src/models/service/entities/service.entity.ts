@@ -23,10 +23,10 @@ export class Service {
     name: string;
 
     @Column({ type: 'int', nullable: false })
-    priceFrom: number;
+    price_from: number;
 
     @Column({ type: 'int', nullable: true })
-    priceTo: number;
+    price_to: number;
 
     @Column({ type: 'int', nullable: false })
     duration: number;

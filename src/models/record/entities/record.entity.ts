@@ -8,13 +8,13 @@ export class Record {
     uuid: string;
 
     @Column({ type: 'varchar', nullable: true })
-    clientName: string;
+    client_name: string;
 
     @Column({ type: 'varchar', nullable: true })
-    clientPhone: string;
+    client_phone: string;
 
     @Column({ type: 'timestamp without time zone', nullable: false })
-    timeStart: string;
+    time_start: string;
 
     @Column({ type: 'int', nullable: false })
     duration: number;

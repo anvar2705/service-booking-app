@@ -17,7 +17,7 @@ export class Employee {
     patronymic: string;
 
     @Column({ type: 'varchar', nullable: true })
-    photoUrl: string;
+    photo_url: string;
 
     @ManyToMany(() => Service, (service) => service.employees)
     services: Service[];

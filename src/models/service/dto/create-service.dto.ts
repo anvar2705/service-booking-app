@@ -7,11 +7,11 @@ export class CreateServiceDto {
     name: string;
 
     @IsNumber()
-    priceFrom: number;
+    price_from: number;
 
     @IsNumber()
     @IsOptional()
-    priceTo: number;
+    price_to: number;
 
     @IsNumber()
     duration: number;
