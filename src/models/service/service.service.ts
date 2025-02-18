@@ -56,7 +56,7 @@ export class ServiceService {
         const foundService = await this.serviceRepository.findOneBy({ uuid });
 
         if (!foundService) {
-            throw new NotFoundException();
+            throw new NotFoundException('Service not found');
         }
 
         return foundService;

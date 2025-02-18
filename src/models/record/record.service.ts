@@ -59,7 +59,7 @@ export class RecordService {
         });
 
         if (!foundRecord) {
-            throw new NotFoundException();
+            throw new NotFoundException('Record not found');
         }
 
         return foundRecord;

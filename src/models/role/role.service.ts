@@ -36,7 +36,7 @@ export class RoleService {
         const role = await this.roleRepository.findOneBy({ id });
 
         if (!role) {
-            throw new NotFoundException();
+            throw new NotFoundException('Role not found');
         }
 
         return role;
@@ -46,7 +46,7 @@ export class RoleService {
         const role = await this.roleRepository.findOneBy({ name });
 
         if (!role) {
-            throw new NotFoundException();
+            throw new NotFoundException('Role not found');
         }
 
         return role;

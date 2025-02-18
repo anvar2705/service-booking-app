@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigEnum } from 'common';
 import { getEnvPath } from 'common/helpers/env.helper';
 import { dbConfiguration } from 'db/data-source.config';
+import { EmployeeModule } from 'models/employee/employee.module';
 import { IamModule } from 'models/iam/iam.module';
 import { RecordModule } from 'models/record/record.module';
 import { RoleModule } from 'models/role/role.module';
@@ -29,6 +30,7 @@ import { UserModule } from 'models/user/user.module';
         RoleModule,
         ServiceModule,
         RecordModule,
+        EmployeeModule,
     ],
     controllers: [],
     providers: [],

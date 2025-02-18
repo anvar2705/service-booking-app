@@ -2,11 +2,14 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinTable,
+    ManyToMany,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 
+import { Employee } from 'models/employee/entities/employee.entity';
 import { Record } from 'models/record/entities/record.entity';
 
 import { ServiceTypeEnum } from '../constants';
@@ -37,6 +40,12 @@ export class Service {
 
     @OneToMany(() => Record, (record) => record.service)
     records: Record[];
+
+    @ManyToMany(() => Employee, (employee) => employee.services, {
+        eager: true,
+    })
+    @JoinTable({ name: 'service_employee' })
+    employees: Employee[];
 
     @CreateDateColumn()
     public created_at: Date;

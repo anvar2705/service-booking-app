@@ -22,7 +22,7 @@ export class User {
     password: string;
 
     @ManyToMany(() => Role, (role) => role.users, { eager: true })
-    @JoinTable()
+    @JoinTable({ name: 'user_role' })
     roles: Role[];
 
     @CreateDateColumn()
