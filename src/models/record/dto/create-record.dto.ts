@@ -24,5 +24,5 @@ export class CreateRecordDto {
     comment?: string;
 
     @IsUUID()
-    serviceUUID: string;
+    service_uuid: string;
 }

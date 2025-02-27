@@ -24,9 +24,9 @@ export class Company {
     @OneToMany(() => Service, (service) => service.company)
     services: Service[];
 
-    @CreateDateColumn()
+    @CreateDateColumn({ select: false })
     public created_at: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ select: false })
     public updated_at: Date;
 }

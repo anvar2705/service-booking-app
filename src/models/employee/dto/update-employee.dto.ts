@@ -1,16 +1,19 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { IsArray, IsNumber, IsOptional, IsUUID } from 'class-validator';
 
 import { CreateEmployeeDto } from './create-employee.dto';
 
-export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
+export class UpdateEmployeeDto extends OmitType(
+    PartialType(CreateEmployeeDto),
+    ['company_uuid'],
+) {
     @IsOptional()
     @IsArray()
     @IsNumber({}, { each: true })
-    roleIds: number[];
+    role_ids: number[];
 
     @IsOptional()
     @IsArray()
     @IsUUID('all', { each: true })
-    serviceUUIDs?: string[];
+    service_uuids?: string[];
 }

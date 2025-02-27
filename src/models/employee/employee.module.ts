@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ConfigEnum } from 'common';
+import { Company } from 'models/company/entities/company.entity';
 import { ServiceModule } from 'models/service/service.module';
 import { UserModule } from 'models/user/user.module';
 
@@ -11,7 +12,10 @@ import { Employee } from './entities/employee.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Employee], ConfigEnum.DB_CONNECTION_NAME),
+        TypeOrmModule.forFeature(
+            [Employee, Company],
+            ConfigEnum.DB_CONNECTION_NAME,
+        ),
         ServiceModule,
         UserModule,
     ],

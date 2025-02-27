@@ -28,9 +28,9 @@ export class User {
     @JoinTable({ name: 'user_role' })
     roles: Role[];
 
-    @CreateDateColumn()
+    @CreateDateColumn({ select: false })
     public created_at: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ select: false })
     public updated_at: Date;
 }

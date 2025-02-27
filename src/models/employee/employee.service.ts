@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
 import { getPagPayload } from 'common/utils';
+import { Company } from 'models/company/entities/company.entity';
 import { Service } from 'models/service/entities/service.entity';
 import { ServiceService } from 'models/service/service.service';
 import { UserService } from 'models/user/user.service';
@@ -21,10 +26,20 @@ export class EmployeeService {
         private readonly employeeRepository: Repository<Employee>,
         private readonly serviceService: ServiceService,
         private readonly userService: UserService,
+        @InjectRepository(Company, ConfigEnum.DB_CONNECTION_NAME)
+        private readonly companyRepository: Repository<Company>,
     ) {}
 
     async create(dto: CreateEmployeeDto): Promise<Employee> {
-        const { username, email, password, ...employeeDto } = dto;
+        const { username, email, password, company_uuid, ...employeeDto } = dto;
+
+        const company = await this.companyRepository.findOneBy({
+            uuid: company_uuid,
+        });
+
+        if (!company) {
+            throw new BadRequestException('Company not found');
+        }
 
         const newUser = await this.userService.create({
             username,
@@ -36,6 +51,7 @@ export class EmployeeService {
             ...employeeDto,
             services: [],
             user: newUser,
+            company,
         });
 
         return this.employeeRepository.save(newEmployee);
@@ -49,6 +65,10 @@ export class EmployeeService {
         const [items, count] = await this.employeeRepository.findAndCount({
             order: {
                 name: 'ASC',
+            },
+            relations: {
+                user: true,
+                company: true,
             },
             ...payload,
         });
@@ -71,11 +91,11 @@ export class EmployeeService {
 
     async update(id: number, dto: UpdateEmployeeDto): Promise<Employee> {
         const {
-            serviceUUIDs,
+            service_uuids,
             username,
             email,
             password,
-            roleIds,
+            role_ids,
             ...employeeDtoWithoutServices
         } = dto;
 
@@ -89,20 +109,20 @@ export class EmployeeService {
         const employee = await this.findOne(id);
 
         if (employee) {
-            if (username || email || password || roleIds) {
+            if (username || email || password || role_ids) {
                 await this.userService.update(employee.user.id, {
                     username,
                     email,
                     password,
-                    roleIds,
+                    role_ids,
                 });
             }
         }
 
         const newServices: Service[] = [];
 
-        if (employee && serviceUUIDs?.length > 0) {
-            for (const serviceUUID of serviceUUIDs) {
+        if (employee && service_uuids?.length > 0) {
+            for (const serviceUUID of service_uuids) {
                 const service = await this.serviceService.findOne(
                     serviceUUID,
                     true,

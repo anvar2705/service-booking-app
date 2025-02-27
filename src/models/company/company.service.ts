@@ -56,7 +56,7 @@ export class CompanyService {
     }
 
     async update(uuid: string, dto: UpdateCompanyDto): Promise<Company> {
-        const { employeeIDs, serviceUUIDs, ...restDto } = dto;
+        const { employee_ids, service_uuids, ...restDto } = dto;
 
         if (Object.keys(restDto).length > 0) {
             await this.companyRepository.update(uuid, restDto);
@@ -67,8 +67,8 @@ export class CompanyService {
         const newServices = [];
 
         if (company) {
-            if (employeeIDs && employeeIDs.length > 0) {
-                for (const employeeID of employeeIDs) {
+            if (employee_ids && employee_ids.length > 0) {
+                for (const employeeID of employee_ids) {
                     const employee =
                         await this.employeeService.findOne(employeeID);
                     if (employee) {
@@ -79,8 +79,8 @@ export class CompanyService {
                 company.employees = newEmployees;
             }
 
-            if (serviceUUIDs && serviceUUIDs.length > 0) {
-                for (const serviceUUID of serviceUUIDs) {
+            if (service_uuids && service_uuids.length > 0) {
+                for (const serviceUUID of service_uuids) {
                     const service =
                         await this.serviceService.findOne(serviceUUID);
                     if (service) {

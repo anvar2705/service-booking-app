@@ -68,7 +68,7 @@ export class UserService {
     }
 
     async create(dto: CreateUserDto): Promise<User> {
-        const { username, email, password, roleIds } = dto;
+        const { username, email, password, role_ids } = dto;
         await this._validateUser(username, email);
 
         try {
@@ -80,14 +80,14 @@ export class UserService {
             user.password = await this.hashingService.hash(password);
             user.roles = [];
 
-            if (!roleIds) {
+            if (!role_ids) {
                 const defaultUserRole =
                     await this.roleService.findByName(DEFAULT_ROLE);
                 if (defaultUserRole) {
                     user.roles = [defaultUserRole];
                 }
-            } else if (roleIds.length > 0) {
-                for (const roleId of roleIds) {
+            } else if (role_ids.length > 0) {
+                for (const roleId of role_ids) {
                     const role = await this.roleService.findById(roleId, true);
                     if (role) {
                         user.roles.push(role);
@@ -103,7 +103,7 @@ export class UserService {
     }
 
     async update(id: number, dto: UpdateUserDto): Promise<User> {
-        const { roleIds, ...dtoWithoutRoles } = dto;
+        const { role_ids, ...dtoWithoutRoles } = dto;
         const newHashedPassword = dto.password
             ? await this.hashingService.hash(dto.password)
             : undefined;
@@ -116,8 +116,8 @@ export class UserService {
         const newRoles = [];
         const user = await this.findById(id);
 
-        if (user && roleIds && roleIds.length > 0) {
-            for (const roleId of roleIds) {
+        if (user && role_ids && role_ids.length > 0) {
+            for (const roleId of role_ids) {
                 const role = await this.roleService.findById(roleId, true);
                 if (role) {
                     newRoles.push(role);

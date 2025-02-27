@@ -21,14 +21,14 @@ export class RecordService {
     ) {}
 
     async create(dto: CreateRecordDto): Promise<Record> {
-        const { serviceUUID, ...dtoWithoutServiceUUID } = dto;
+        const { service_uuid, ...restDto } = dto;
 
-        const service = await this.serviceService.findOne(serviceUUID);
+        const service = await this.serviceService.findOne(service_uuid);
 
         // TODO валидировать время начала и длительность
 
         const record = this.recordRepository.create({
-            ...dtoWithoutServiceUUID,
+            ...restDto,
             service,
         });
 

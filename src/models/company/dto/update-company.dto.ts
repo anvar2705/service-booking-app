@@ -7,10 +7,10 @@ export class UpdateCompanyDto extends PartialType(CreateCompanyDto) {
     @IsOptional()
     @IsArray()
     @IsUUID('all', { each: true })
-    serviceUUIDs?: string[];
+    service_uuids?: string[];
 
     @IsOptional()
     @IsArray()
     @IsNumber({}, { each: true })
-    employeeIDs?: number[];
+    employee_ids?: number[];
 }

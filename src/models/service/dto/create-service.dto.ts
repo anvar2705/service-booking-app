@@ -1,8 +1,11 @@
-import { IsEnum, IsNumber, IsOptional, Length } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsUUID, Length } from 'class-validator';
 
 import { ServiceTypeEnum } from '../constants';
 
 export class CreateServiceDto {
+    @IsUUID()
+    company_uuid: string;
+
     @Length(3, 120)
     name: string;
 

@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
 import { getPagPayload } from 'common/utils';
+import { Company } from 'models/company/entities/company.entity';
 
 import { CreateServiceDto } from './dto/create-service.dto';
 import { FindAllServicesDto } from './dto/find-all-services.dto';
@@ -20,10 +21,12 @@ export class ServiceService {
     constructor(
         @InjectRepository(Service, ConfigEnum.DB_CONNECTION_NAME)
         private readonly serviceRepository: Repository<Service>,
+        @InjectRepository(Company, ConfigEnum.DB_CONNECTION_NAME)
+        private readonly companyRepository: Repository<Company>,
     ) {}
 
     async create(dto: CreateServiceDto): Promise<Service> {
-        const { name } = dto;
+        const { name, company_uuid } = dto;
 
         const sameNameService = await this.serviceRepository.findOneBy({
             name,
@@ -33,7 +36,15 @@ export class ServiceService {
             throw new BadRequestException('Service with the same name exists');
         }
 
-        const service = this.serviceRepository.create(dto);
+        const company = await this.companyRepository.findOneBy({
+            uuid: company_uuid,
+        });
+
+        if (!company) {
+            throw new BadRequestException('Company not found');
+        }
+
+        const service = this.serviceRepository.create({ ...dto, company });
 
         return this.serviceRepository.save(service);
     }
