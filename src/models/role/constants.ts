@@ -1,4 +1,5 @@
 export const RolesEnum = Object.freeze({
     ADMIN: 'ADMIN',
-    USER: 'USER',
+    COMPANY_OWNER: 'COMPANY_OWNER',
+    EMPLOYEE: 'EMPLOYEE',
 } as const);

@@ -29,7 +29,7 @@ export class UserService {
     ) {}
 
     async findAll(dto: FindAllUsersDto): Promise<WithPaginationResponse<User>> {
-        const { email } = dto;
+        const { username, email } = dto;
 
         const { offset, payload } = getPagPayload(dto);
 
@@ -37,7 +37,7 @@ export class UserService {
             order: {
                 id: 'ASC',
             },
-            where: { email },
+            where: { username, email },
             ...payload,
         });
 
@@ -54,37 +54,43 @@ export class UserService {
         return user;
     }
 
-    async _findByEmail(email: string): Promise<User> {
+    async _findByUsername(
+        username: string,
+        disableNotFoundException?: boolean,
+    ): Promise<User> {
         const user = await this.userRepository.findOne({
-            where: { email },
-            select: ['id', 'email', 'password'],
+            where: { username },
+            select: ['id', 'username', 'password'],
         });
 
-        if (!user) {
+        if (!disableNotFoundException && !user) {
             throw new NotFoundException('User not found');
         }
+
         return user;
     }
 
     async create(dto: CreateUserDto): Promise<User> {
-        const { email, password, roles } = dto;
-
-        await this._validateUser(dto.email);
+        const { username, email, password, roleIds } = dto;
+        await this._validateUser(username, email);
 
         try {
-            const user = new User();
-            user.email = email;
+            const user = this.userRepository.create({
+                ...dto,
+                password: '',
+                roles: [],
+            });
             user.password = await this.hashingService.hash(password);
             user.roles = [];
 
-            if (!roles) {
+            if (!roleIds) {
                 const defaultUserRole =
                     await this.roleService.findByName(DEFAULT_ROLE);
                 if (defaultUserRole) {
                     user.roles = [defaultUserRole];
                 }
-            } else if (roles.length > 0) {
-                for (const roleId of roles) {
+            } else if (roleIds.length > 0) {
+                for (const roleId of roleIds) {
                     const role = await this.roleService.findById(roleId);
                     if (role) {
                         user.roles.push(role);
@@ -100,7 +106,7 @@ export class UserService {
     }
 
     async update(id: number, dto: UpdateUserDto): Promise<User> {
-        const { roles, ...dtoWithoutRoles } = dto;
+        const { roleIds, ...dtoWithoutRoles } = dto;
         const newHashedPassword = dto.password
             ? await this.hashingService.hash(dto.password)
             : undefined;
@@ -113,8 +119,8 @@ export class UserService {
         const newRoles = [];
         const user = await this.findById(id);
 
-        if (user && roles && roles.length > 0) {
-            for (const roleId of roles) {
+        if (user && roleIds && roleIds.length > 0) {
+            for (const roleId of roleIds) {
                 const role = await this.roleService.findById(roleId);
                 if (role) {
                     newRoles.push(role);
@@ -133,20 +139,25 @@ export class UserService {
         return this.userRepository.delete(id);
     }
 
-    private async _validateUser(email: string, id?: number) {
-        let currentEmail;
-        if (id !== undefined) {
-            const currenUser = await this.findById(id);
-            currentEmail = currenUser.email;
+    private async _validateUser(username: string, email?: string) {
+        const sameUsernameUser = await this.userRepository.findOneBy({
+            username,
+        });
+
+        if (sameUsernameUser) {
+            throw new HttpException(
+                'User with this username already exists',
+                HttpStatus.BAD_REQUEST,
+            );
         }
 
-        if (email !== currentEmail) {
+        if (email) {
             const sameEmailUser = await this.userRepository.findOneBy({
                 email,
             });
             if (sameEmailUser) {
                 throw new HttpException(
-                    'Пользователь c таким email существует',
+                    'User with this email already exists',
                     HttpStatus.BAD_REQUEST,
                 );
             }

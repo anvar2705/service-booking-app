@@ -1,6 +1,14 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { Service } from 'models/service/entities/service.entity';
+import { User } from 'models/user/entities/user.entity';
 
 @Entity()
 export class Employee {
@@ -21,4 +29,8 @@ export class Employee {
 
     @ManyToMany(() => Service, (service) => service.employees)
     services: Service[];
+
+    @OneToOne(() => User)
+    @JoinColumn()
+    user: User;
 }

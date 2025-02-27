@@ -52,10 +52,13 @@ export class ServiceService {
         return { total, offset, items };
     }
 
-    async findOne(uuid: string): Promise<Service> {
+    async findOne(
+        uuid: string,
+        disableNotFoundException?: boolean,
+    ): Promise<Service> {
         const foundService = await this.serviceRepository.findOneBy({ uuid });
 
-        if (!foundService) {
+        if (!disableNotFoundException && !foundService) {
             throw new NotFoundException('Service not found');
         }
 

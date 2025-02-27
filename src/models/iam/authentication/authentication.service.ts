@@ -29,16 +29,17 @@ export class AuthenticationService {
         private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
     ) {}
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async signUp(dto: SignUpDto) {
-        return this.userService.create(dto);
+        // return this.userService.create(dto);
     }
 
     async signIn(dto: SignInDto) {
-        const { email, password } = dto;
+        const { username, password } = dto;
 
-        const user = await this.userService._findByEmail(email);
+        const user = await this.userService._findByUsername(username, true);
         if (!user) {
-            throw new UnauthorizedException('Пользователь не существует');
+            throw new UnauthorizedException('User not found');
         }
 
         const isEqual = await this.hashingService.compare(
@@ -46,7 +47,7 @@ export class AuthenticationService {
             user.password,
         );
         if (!isEqual) {
-            throw new UnauthorizedException('Неверный email или пароль');
+            throw new UnauthorizedException('Wrong credentials');
         }
 
         return this.generateTokens(user);

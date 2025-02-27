@@ -1,11 +1,4 @@
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { User } from 'models/user/entities/user.entity';
 
@@ -19,10 +12,4 @@ export class Role {
 
     @ManyToMany(() => User, (user) => user.roles)
     users: User[];
-
-    @CreateDateColumn({ select: false })
-    public created_at: Date;
-
-    @UpdateDateColumn({ select: false })
-    public updated_at: Date;
 }

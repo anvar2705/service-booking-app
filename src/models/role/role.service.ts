@@ -26,7 +26,6 @@ export class RoleService {
             order: {
                 id: 'ASC',
             },
-            select: ['id', 'name', 'created_at', 'updated_at'],
         });
 
         return { total, offset: 0, items };
