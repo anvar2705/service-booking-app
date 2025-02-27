@@ -29,15 +29,12 @@ export class UserService {
     ) {}
 
     async findAll(dto: FindAllUsersDto): Promise<WithPaginationResponse<User>> {
-        const { username, email } = dto;
-
         const { offset, payload } = getPagPayload(dto);
 
         const [items, total] = await this.userRepository.findAndCount({
             order: {
                 id: 'ASC',
             },
-            where: { username, email },
             ...payload,
         });
 
@@ -91,7 +88,7 @@ export class UserService {
                 }
             } else if (roleIds.length > 0) {
                 for (const roleId of roleIds) {
-                    const role = await this.roleService.findById(roleId);
+                    const role = await this.roleService.findById(roleId, true);
                     if (role) {
                         user.roles.push(role);
                     }
@@ -121,7 +118,7 @@ export class UserService {
 
         if (user && roleIds && roleIds.length > 0) {
             for (const roleId of roleIds) {
-                const role = await this.roleService.findById(roleId);
+                const role = await this.roleService.findById(roleId, true);
                 if (role) {
                     newRoles.push(role);
                 }

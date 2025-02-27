@@ -4,6 +4,7 @@ import { IsArray, IsNumber, IsOptional, IsUUID } from 'class-validator';
 import { CreateEmployeeDto } from './create-employee.dto';
 
 export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
+    @IsOptional()
     @IsArray()
     @IsNumber({}, { each: true })
     roleIds: number[];

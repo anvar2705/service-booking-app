@@ -4,11 +4,13 @@ import {
     Entity,
     JoinTable,
     ManyToMany,
+    ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 
+import { Company } from 'models/company/entities/company.entity';
 import { Employee } from 'models/employee/entities/employee.entity';
 import { Record } from 'models/record/entities/record.entity';
 
@@ -46,6 +48,9 @@ export class Service {
     })
     @JoinTable({ name: 'service_employee' })
     employees: Employee[];
+
+    @ManyToOne(() => Company, (company) => company.services)
+    company: Company;
 
     @CreateDateColumn()
     public created_at: Date;

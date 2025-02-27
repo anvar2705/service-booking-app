@@ -3,10 +3,12 @@ import {
     Entity,
     JoinColumn,
     ManyToMany,
+    ManyToOne,
     OneToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import { Company } from 'models/company/entities/company.entity';
 import { Service } from 'models/service/entities/service.entity';
 import { User } from 'models/user/entities/user.entity';
 
@@ -33,4 +35,7 @@ export class Employee {
     @OneToOne(() => User)
     @JoinColumn()
     user: User;
+
+    @ManyToOne(() => Company, (company) => company.employees)
+    company: Company;
 }

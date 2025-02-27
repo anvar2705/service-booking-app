@@ -1,7 +1,7 @@
 import { FindAllQueryDto } from './find-all-query.dto';
 
-export const getPagPayload = (dto: FindAllQueryDto) => {
-    const { page, page_size } = dto;
+export const getPagPayload = <T extends FindAllQueryDto>(dto: T) => {
+    const { page, page_size, ...rest } = dto;
     const offset = (page - 1) * page_size;
 
     return {
@@ -9,6 +9,7 @@ export const getPagPayload = (dto: FindAllQueryDto) => {
         payload: {
             take: page_size,
             skip: offset,
+            where: { ...rest },
         },
     };
 };
