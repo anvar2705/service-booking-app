@@ -1,10 +1,17 @@
-import { IsEmail, IsOptional, IsUUID, Length } from 'class-validator';
+import {
+    IsArray,
+    IsEmail,
+    IsNumber,
+    IsOptional,
+    IsUUID,
+    Length,
+} from 'class-validator';
 
 export class CreateEmployeeDto {
     @IsUUID()
     company_uuid: string;
 
-    @Length(2, 30)
+    @Length(3, 30)
     username: string;
 
     @Length(5, 20)
@@ -12,20 +19,24 @@ export class CreateEmployeeDto {
 
     @IsOptional()
     @IsEmail()
-    @Length(3, 60)
     email?: string;
 
-    @Length(2, 30)
-    name: string;
+    @Length(3, 30)
+    name?: string;
 
     @IsOptional()
-    @Length(2, 30)
+    @Length(3, 30)
     surname?: string;
 
     @IsOptional()
-    @Length(2, 30)
+    @Length(3, 30)
     patronymic?: string;
 
     @IsOptional()
     photo_url?: string;
+
+    @IsOptional()
+    @IsArray()
+    @IsNumber({}, { each: true })
+    role_ids?: number[];
 }

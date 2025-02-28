@@ -1,6 +1,6 @@
 import { Length } from 'class-validator';
 
 export class CreateCompanyDto {
-    @Length(2, 30)
+    @Length(3, 60)
     name: string;
 }

@@ -1,9 +1,10 @@
-import { IsEmail, IsOptional } from 'class-validator';
+import { IsEmail, IsOptional, Length } from 'class-validator';
 
 import { FindAllQueryDto } from 'common/utils';
 
 export class FindAllUsersDto extends FindAllQueryDto {
     @IsOptional()
+    @Length(3, 30)
     username: string;
 
     @IsOptional()

@@ -17,7 +17,7 @@ export class Employee {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: true })
     name: string;
 
     @Column({ type: 'varchar', nullable: true })
