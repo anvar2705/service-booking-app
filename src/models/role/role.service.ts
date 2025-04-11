@@ -44,10 +44,13 @@ export class RoleService {
         return role;
     }
 
-    async findByName(name: string): Promise<Role> {
+    async findByName(
+        name: string,
+        disableNotFoundException?: boolean,
+    ): Promise<Role> {
         const role = await this.roleRepository.findOneBy({ name });
 
-        if (!role) {
+        if (!disableNotFoundException && !role) {
             throw new NotFoundException('Role not found');
         }
 

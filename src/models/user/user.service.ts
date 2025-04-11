@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
     HttpException,
     HttpStatus,
     Injectable,
@@ -29,13 +30,18 @@ export class UserService {
     ) {}
 
     async findAll(dto: FindAllUsersDto): Promise<WithPaginationResponse<User>> {
+        const { username, email } = dto;
         const { offset, payload } = getPagPayload(dto);
 
         const [items, total] = await this.userRepository.findAndCount({
+            ...payload,
             order: {
                 id: 'ASC',
             },
-            ...payload,
+            where: {
+                username,
+                email,
+            },
         });
 
         return { total, offset, items };
@@ -72,28 +78,14 @@ export class UserService {
         await this._validateUser(username, email);
 
         try {
-            const user = this.userRepository.create({
+            let user = this.userRepository.create({
                 ...dto,
                 password: '',
                 roles: [],
             });
             user.password = await this.hashingService.hash(password);
-            user.roles = [];
 
-            if (!role_ids) {
-                const defaultUserRole =
-                    await this.roleService.findByName(DEFAULT_ROLE);
-                if (defaultUserRole) {
-                    user.roles = [defaultUserRole];
-                }
-            } else if (role_ids.length > 0) {
-                for (const roleId of role_ids) {
-                    const role = await this.roleService.findById(roleId, true);
-                    if (role) {
-                        user.roles.push(role);
-                    }
-                }
-            }
+            user = await this.assignUserRoles(user, role_ids);
 
             const createdUser = await this.userRepository.save(user);
             return { ...createdUser, password: undefined };
@@ -104,6 +96,9 @@ export class UserService {
 
     async update(id: number, dto: UpdateUserDto): Promise<User> {
         const { role_ids, ...dtoWithoutRoles } = dto;
+
+        await this._validateUser(dto.username, dto.email);
+
         const newHashedPassword = dto.password
             ? await this.hashingService.hash(dto.password)
             : undefined;
@@ -113,39 +108,58 @@ export class UserService {
             password: newHashedPassword,
         });
 
-        const newRoles = [];
-        const user = await this.findById(id);
+        let user = await this.findById(id);
 
-        if (user && role_ids && role_ids.length > 0) {
-            for (const roleId of role_ids) {
-                const role = await this.roleService.findById(roleId, true);
-                if (role) {
-                    newRoles.push(role);
+        if (role_ids) {
+            user = await this.assignUserRoles(user, role_ids);
+        }
+
+        return this.userRepository.save(user);
+    }
+
+    async assignUserRoles(user: User, role_ids?: number[]): Promise<User> {
+        user.roles = [];
+
+        try {
+            if (!role_ids) {
+                const defaultUserRole = await this.roleService.findByName(
+                    DEFAULT_ROLE,
+                    true,
+                );
+                if (defaultUserRole) {
+                    user.roles = [defaultUserRole];
+                }
+            } else if (role_ids?.length > 0) {
+                for (const roleId of role_ids) {
+                    const role = await this.roleService.findById(roleId, true);
+                    if (role) {
+                        user.roles.push(role);
+                    }
                 }
             }
 
-            user.roles = newRoles;
-
-            return this.userRepository.save(user);
+            return user;
+        } catch {
+            throw new BadRequestException("Can't assign these roles to user");
         }
-
-        return user;
     }
 
     async delete(id: number) {
         return this.userRepository.delete(id);
     }
 
-    private async _validateUser(username: string, email?: string) {
-        const sameUsernameUser = await this.userRepository.findOneBy({
-            username,
-        });
+    private async _validateUser(username?: string, email?: string) {
+        if (username) {
+            const sameUsernameUser = await this.userRepository.findOneBy({
+                username,
+            });
 
-        if (sameUsernameUser) {
-            throw new HttpException(
-                'User with this username already exists',
-                HttpStatus.BAD_REQUEST,
-            );
+            if (sameUsernameUser) {
+                throw new HttpException(
+                    'User with this username already exists',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
         }
 
         if (email) {

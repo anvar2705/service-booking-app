@@ -1,5 +1,5 @@
 import {
-    IsArray,
+    ArrayNotEmpty,
     IsEmail,
     IsNumber,
     IsOptional,
@@ -36,7 +36,7 @@ export class CreateEmployeeDto {
     photo_url?: string;
 
     @IsOptional()
-    @IsArray()
+    @ArrayNotEmpty()
     @IsNumber({}, { each: true })
     role_ids?: number[];
 }

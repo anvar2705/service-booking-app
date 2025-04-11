@@ -52,13 +52,22 @@ export class ServiceService {
     async findAll(
         dto: FindAllServicesDto,
     ): Promise<WithPaginationResponse<Service>> {
+        const { employee_id, company_uuid } = dto;
         const { offset, payload } = getPagPayload(dto);
 
         const [items, total] = await this.serviceRepository.findAndCount({
+            ...payload,
             order: {
                 name: 'ASC',
             },
-            ...payload,
+            where: {
+                employees: {
+                    id: employee_id,
+                },
+                company: {
+                    uuid: company_uuid,
+                },
+            },
         });
         return { total, offset, items };
     }

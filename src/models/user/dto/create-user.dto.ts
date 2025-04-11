@@ -2,14 +2,15 @@ import {
     IsEmail,
     Length,
     IsOptional,
-    IsArray,
     IsNumber,
+    ArrayNotEmpty,
 } from 'class-validator';
 
 export class CreateUserDto {
     @Length(3, 30)
     username: string;
 
+    @IsOptional()
     @IsEmail()
     email?: string;
 
@@ -17,7 +18,7 @@ export class CreateUserDto {
     password: string;
 
     @IsOptional()
-    @IsArray()
+    @ArrayNotEmpty()
     @IsNumber({}, { each: true })
     role_ids?: number[];
 }

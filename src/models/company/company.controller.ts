@@ -10,6 +10,8 @@ import {
     Query,
 } from '@nestjs/common';
 
+import { FindAllQueryDto } from 'common/utils';
+
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { FindAllCompaniesDto } from './dto/find-all-companies.dto';
@@ -45,5 +47,21 @@ export class CompanyController {
     @Delete(':uuid')
     remove(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
         return this.companyService.remove(uuid);
+    }
+
+    @Get(':uuid/employees')
+    findEmployees(
+        @Param('uuid', new ParseUUIDPipe()) uuid: string,
+        @Query() dto: FindAllQueryDto,
+    ) {
+        return this.companyService.findCompanyEmployees(uuid, dto);
+    }
+
+    @Get(':uuid/services')
+    findServices(
+        @Param('uuid', new ParseUUIDPipe()) uuid: string,
+        @Query() dto: FindAllQueryDto,
+    ) {
+        return this.companyService.findCompanyServices(uuid, dto);
     }
 }

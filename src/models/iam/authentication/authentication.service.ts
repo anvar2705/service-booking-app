@@ -31,7 +31,18 @@ export class AuthenticationService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async signUp(dto: SignUpDto) {
-        // return this.userService.create(dto);
+        // const { company_name, ...employeeDto } = dto;
+        // // const company = await this.companyService.create({
+        // //     name: company_name,
+        // // });
+        // const companyOwnerRole = await this.roleService.findByName(
+        //     RolesEnum.COMPANY_OWNER,
+        // );
+        // return await this.employeeService.create({
+        //     ...employeeDto,
+        //     company_uuid: 'company.uuid',
+        //     role_ids: [companyOwnerRole.id],
+        // });
     }
 
     async signIn(dto: SignInDto) {

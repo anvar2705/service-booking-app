@@ -8,9 +8,8 @@ import { Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
-import { getPagPayload } from 'common/utils';
+import { FindAllQueryDto, getPagPayload } from 'common/utils';
 import { Company } from 'models/company/entities/company.entity';
-import { Service } from 'models/service/entities/service.entity';
 import { ServiceService } from 'models/service/service.service';
 import { UserService } from 'models/user/user.service';
 
@@ -60,17 +59,18 @@ export class EmployeeService {
     async findAll(
         dto: FindAllEmployeesDto,
     ): Promise<WithPaginationResponse<Employee>> {
+        const { company_uuid } = dto;
         const { offset, payload } = getPagPayload(dto);
 
         const [items, count] = await this.employeeRepository.findAndCount({
+            ...payload,
             order: {
                 name: 'ASC',
             },
+            where: { company: { uuid: company_uuid } },
             relations: {
                 user: true,
-                company: true,
             },
-            ...payload,
         });
 
         return { items, total: count, offset };
@@ -80,7 +80,13 @@ export class EmployeeService {
         id: number,
         disableNotFoundException?: boolean,
     ): Promise<Employee> {
-        const employee = await this.employeeRepository.findOneBy({ id });
+        const employee = await this.employeeRepository.findOne({
+            where: { id },
+            relations: {
+                user: true,
+                company: true,
+            },
+        });
 
         if (!disableNotFoundException && !employee) {
             throw new NotFoundException('Employee not found');
@@ -89,24 +95,22 @@ export class EmployeeService {
         return employee;
     }
 
-    async update(id: number, dto: UpdateEmployeeDto): Promise<Employee> {
-        const {
-            service_uuids,
-            username,
-            email,
-            password,
-            role_ids,
-            ...employeeDtoWithoutServices
-        } = dto;
+    async findEmployeeServices(id: number, dto: FindAllQueryDto) {
+        const employeeServices = await this.serviceService.findAll({
+            ...dto,
+            employee_id: id,
+        });
+        return employeeServices;
+    }
 
-        if (employeeDtoWithoutServices) {
-            await this.employeeRepository.update(
-                id,
-                employeeDtoWithoutServices,
-            );
-        }
+    async update(id: number, dto: UpdateEmployeeDto): Promise<Employee> {
+        const { username, email, password, role_ids, ...employeeDto } = dto;
 
         const employee = await this.findOne(id);
+
+        if (employeeDto) {
+            await this.employeeRepository.update(id, employeeDto);
+        }
 
         if (employee) {
             if (username || email || password || role_ids) {
@@ -119,27 +123,38 @@ export class EmployeeService {
             }
         }
 
-        const newServices: Service[] = [];
-
-        if (employee && service_uuids?.length > 0) {
-            for (const serviceUUID of service_uuids) {
-                const service = await this.serviceService.findOne(
-                    serviceUUID,
-                    true,
-                );
-
-                if (service) newServices.push(service);
-            }
-
-            employee.services = newServices;
-
-            return this.employeeRepository.save(employee);
-        }
-
         return this.findOne(id);
     }
 
     remove(id: number) {
         return this.employeeRepository.delete(id);
+    }
+
+    async addServicesToEmployee(id: number, service_uuids: string[]) {
+        const employee = await this.employeeRepository.findOne({
+            where: { id },
+            relations: { services: true },
+        });
+        if (!employee) {
+            throw new NotFoundException('Employee not found');
+        }
+
+        if (!employee.services) employee.services = [];
+
+        for (const serviceUUID of service_uuids) {
+            const service = await this.serviceService.findOne(
+                serviceUUID,
+                true,
+            );
+
+            if (
+                service &&
+                !employee.services.find((s) => s.uuid === service.uuid)
+            ) {
+                employee.services.push(service);
+            }
+        }
+
+        return this.employeeRepository.save(employee);
     }
 }

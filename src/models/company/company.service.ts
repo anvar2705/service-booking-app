@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
-import { getPagPayload } from 'common/utils';
+import { FindAllQueryDto, getPagPayload } from 'common/utils';
 import { EmployeeService } from 'models/employee/employee.service';
 import { ServiceService } from 'models/service/service.service';
 
@@ -31,13 +31,17 @@ export class CompanyService {
     async findAll(
         dto: FindAllCompaniesDto,
     ): Promise<WithPaginationResponse<Company>> {
+        const { name } = dto;
         const { offset, payload } = getPagPayload(dto);
 
         const [items, total] = await this.companyRepository.findAndCount({
+            ...payload,
             order: {
                 name: 'ASC',
             },
-            ...payload,
+            where: {
+                name,
+            },
         });
         return { total, offset, items };
     }
@@ -56,50 +60,60 @@ export class CompanyService {
     }
 
     async update(uuid: string, dto: UpdateCompanyDto): Promise<Company> {
-        const { employee_ids, service_uuids, ...restDto } = dto;
+        await this.companyRepository.update(uuid, dto);
 
-        if (Object.keys(restDto).length > 0) {
-            await this.companyRepository.update(uuid, restDto);
-        }
+        return this.findOne(uuid);
+        // const newEmployees = [];
+        // const newServices = [];
 
-        const company = await this.findOne(uuid);
-        const newEmployees = [];
-        const newServices = [];
+        // if (company) {
+        //     if (employee_ids && employee_ids.length > 0) {
+        //         for (const employeeID of employee_ids) {
+        //             const employee =
+        //                 await this.employeeService.findOne(employeeID);
+        //             if (employee) {
+        //                 newEmployees.push(employee);
+        //             }
+        //         }
 
-        if (company) {
-            if (employee_ids && employee_ids.length > 0) {
-                for (const employeeID of employee_ids) {
-                    const employee =
-                        await this.employeeService.findOne(employeeID);
-                    if (employee) {
-                        newEmployees.push(employee);
-                    }
-                }
+        //         company.employees = newEmployees;
+        //     }
 
-                company.employees = newEmployees;
-            }
+        //     if (service_uuids && service_uuids.length > 0) {
+        //         for (const serviceUUID of service_uuids) {
+        //             const service =
+        //                 await this.serviceService.findOne(serviceUUID);
+        //             if (service) {
+        //                 newServices.push(service);
+        //             }
+        //         }
 
-            if (service_uuids && service_uuids.length > 0) {
-                for (const serviceUUID of service_uuids) {
-                    const service =
-                        await this.serviceService.findOne(serviceUUID);
-                    if (service) {
-                        newServices.push(service);
-                    }
-                }
+        //         company.services = newServices;
+        //     }
 
-                company.services = newServices;
-            }
+        //     if (newEmployees.length > 0 || newServices.length > 0) {
+        //         return this.companyRepository.save(company);
+        //     }
+        // }
 
-            if (newEmployees.length > 0 || newServices.length > 0) {
-                return this.companyRepository.save(company);
-            }
-        }
-
-        return company;
+        // return company;
     }
 
     remove(uuid: string) {
         return this.companyRepository.delete(uuid);
+    }
+
+    async findCompanyEmployees(uuid: string, dto: FindAllQueryDto) {
+        return this.employeeService.findAll({
+            ...dto,
+            company_uuid: uuid,
+        });
+    }
+
+    async findCompanyServices(uuid: string, dto: FindAllQueryDto) {
+        return this.serviceService.findAll({
+            ...dto,
+            company_uuid: uuid,
+        });
     }
 }

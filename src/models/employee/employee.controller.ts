@@ -10,6 +10,9 @@ import {
     Query,
 } from '@nestjs/common';
 
+import { FindAllQueryDto } from 'common/utils';
+
+import { AddServicesToEmployeeDto } from './dto/add-services-to-employee.dto';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { FindAllEmployeesDto } from './dto/find-all-employees.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -45,5 +48,24 @@ export class EmployeeController {
     @Delete(':id')
     remove(@Param('id', new ParseIntPipe()) id: number) {
         return this.employeeService.remove(id);
+    }
+
+    @Get(':id/services')
+    findServices(
+        @Param('id', new ParseIntPipe()) id: number,
+        @Query() dto: FindAllQueryDto,
+    ) {
+        return this.employeeService.findEmployeeServices(id, dto);
+    }
+
+    @Post(':id/services')
+    addServices(
+        @Param('id', new ParseIntPipe()) id: number,
+        @Body() dto: AddServicesToEmployeeDto,
+    ) {
+        return this.employeeService.addServicesToEmployee(
+            id,
+            dto.service_uuids,
+        );
     }
 }

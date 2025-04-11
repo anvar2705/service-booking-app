@@ -43,9 +43,7 @@ export class Service {
     @OneToMany(() => Record, (record) => record.service)
     records: Record[];
 
-    @ManyToMany(() => Employee, (employee) => employee.services, {
-        eager: true,
-    })
+    @ManyToMany(() => Employee, (employee) => employee.services)
     @JoinTable({ name: 'service_employee' })
     employees: Employee[];
 
