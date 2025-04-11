@@ -3,6 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 
+import { CompanyModule } from 'models/company/company.module';
+import { EmployeeModule } from 'models/employee/employee.module';
+import { RoleModule } from 'models/role/role.module';
 import { UserModule } from 'models/user/user.module';
 
 import { AuthenticationController } from './authentication/authentication.controller';
@@ -23,6 +26,9 @@ import { HashingService } from './hashing/hashing.service';
         ConfigModule.forRoot({
             load: [redisConfig],
         }),
+        forwardRef(() => CompanyModule),
+        forwardRef(() => RoleModule),
+        forwardRef(() => EmployeeModule),
     ],
     providers: [
         {

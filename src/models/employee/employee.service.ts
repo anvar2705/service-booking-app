@@ -30,7 +30,14 @@ export class EmployeeService {
     ) {}
 
     async create(dto: CreateEmployeeDto): Promise<Employee> {
-        const { username, email, password, company_uuid, ...employeeDto } = dto;
+        const {
+            username,
+            email,
+            password,
+            company_uuid,
+            role_ids,
+            ...employeeDto
+        } = dto;
 
         const company = await this.companyRepository.findOneBy({
             uuid: company_uuid,
@@ -44,6 +51,7 @@ export class EmployeeService {
             username,
             email,
             password,
+            role_ids,
         });
 
         const newEmployee = this.employeeRepository.create({

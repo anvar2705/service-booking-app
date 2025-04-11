@@ -4,6 +4,10 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
+import { CompanyService } from 'models/company/company.service';
+import { EmployeeService } from 'models/employee/employee.service';
+import { RolesEnum } from 'models/role/constants';
+import { RoleService } from 'models/role/role.service';
 import { Role } from 'models/role/types';
 import { User } from 'models/user/entities/user.entity';
 import { UserService } from 'models/user/user.service';
@@ -27,22 +31,32 @@ export class AuthenticationService {
         @Inject(jwtConfig.KEY)
         private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
         private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
+        private readonly companyService: CompanyService,
+        private readonly roleService: RoleService,
+        private readonly employeeService: EmployeeService,
     ) {}
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async signUp(dto: SignUpDto) {
-        // const { company_name, ...employeeDto } = dto;
-        // // const company = await this.companyService.create({
-        // //     name: company_name,
-        // // });
-        // const companyOwnerRole = await this.roleService.findByName(
-        //     RolesEnum.COMPANY_OWNER,
-        // );
-        // return await this.employeeService.create({
-        //     ...employeeDto,
-        //     company_uuid: 'company.uuid',
-        //     role_ids: [companyOwnerRole.id],
-        // });
+        const { company_name, ...employeeDto } = dto;
+
+        const company = await this.companyService.create({
+            name: company_name,
+        });
+
+        const companyOwnerRole = await this.roleService.findByName(
+            RolesEnum.COMPANY_OWNER,
+        );
+
+        console.log('companyOwnerRole', companyOwnerRole);
+
+        await this.employeeService.create({
+            ...employeeDto,
+            company_uuid: company.uuid,
+            role_ids: [companyOwnerRole.id],
+        });
+
+        return undefined;
     }
 
     async signIn(dto: SignInDto) {
