@@ -11,14 +11,14 @@ export class AuthenticationController {
     constructor(private readonly authService: AuthenticationService) {}
 
     @Public()
-    @Post('/registration')
+    @Post('/sign-up')
     signUp(@Body() dto: SignUpDto) {
         return this.authService.signUp(dto);
     }
 
     @Public()
     @HttpCode(HttpStatus.OK)
-    @Post('/login')
+    @Post('/sign-in')
     signIn(@Body() dto: SignInDto) {
         return this.authService.signIn(dto);
     }

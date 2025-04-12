@@ -111,7 +111,7 @@ export class AuthenticationService {
     async generateTokens(user: User) {
         const refreshTokenId = randomUUID();
 
-        const [accessToken, refreshToken] = await Promise.all([
+        const [access_token, refresh_token] = await Promise.all([
             this.signToken<Pick<ActiveUserData, 'email' | 'roles'>>(
                 user.id,
                 Number(this.jwtConfiguration.accessTokenTTL),
@@ -129,7 +129,7 @@ export class AuthenticationService {
 
         await this.refreshTokenIdsStorage.insert(user.id, refreshTokenId);
 
-        return { accessToken, refreshToken };
+        return { access_token, refresh_token };
     }
 
     private async signToken<T>(userId: number, expiresIn: number, payload?: T) {
