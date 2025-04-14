@@ -103,6 +103,19 @@ export class EmployeeService {
         return employee;
     }
 
+    async findOneByUserId(id: number, disableNotFoundException?: boolean) {
+        const employee = await this.employeeRepository.findOne({
+            where: { user: { id } },
+            relations: ['user'],
+        });
+
+        if (!disableNotFoundException && !employee) {
+            throw new NotFoundException('Employee not found');
+        }
+
+        return employee;
+    }
+
     async findEmployeeServices(id: number, dto: FindAllQueryDto) {
         const employeeServices = await this.serviceService.findAll({
             ...dto,

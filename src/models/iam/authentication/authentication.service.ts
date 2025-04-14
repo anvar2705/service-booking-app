@@ -146,4 +146,10 @@ export class AuthenticationService {
             },
         );
     }
+
+    async getAccountInfo(dto: ActiveUserData) {
+        const { sub } = dto;
+
+        return this.employeeService.findOneByUserId(sub);
+    }
 }
