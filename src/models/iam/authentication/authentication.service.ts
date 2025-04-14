@@ -82,7 +82,7 @@ export class AuthenticationService {
         try {
             const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
                 Pick<ActiveUserData, 'sub'> & { refreshTokenId: string }
-            >(dto.refreshToken, {
+            >(dto.refresh_token, {
                 secret: this.jwtConfiguration.secret,
             });
 
