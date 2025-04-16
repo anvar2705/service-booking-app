@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    ForbiddenException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -6,6 +10,8 @@ import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
 import { FindAllQueryDto, getPagPayload } from 'common/utils';
 import { EmployeeService } from 'models/employee/employee.service';
+import { ActiveUserData } from 'models/iam/decorators';
+import { RolesEnum } from 'models/role/constants';
 import { ServiceService } from 'models/service/service.service';
 
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -46,23 +52,41 @@ export class CompanyService {
         return { total, offset, items };
     }
 
-    async findOne(
-        uuid: string,
-        disableNotFoundException?: boolean,
-    ): Promise<Company> {
-        const foundCompany = await this.companyRepository.findOneBy({ uuid });
+    async findOne(user: ActiveUserData, uuid: string): Promise<Company> {
+        const { roles } = user;
 
-        if (!disableNotFoundException && !foundCompany) {
+        let foundCompany;
+
+        if (roles.includes(RolesEnum.ADMIN)) {
+            foundCompany = await this.companyRepository.findOneBy({
+                uuid,
+            });
+        } else {
+            foundCompany = await this._checkIsCompanyEmployee(user, uuid);
+        }
+
+        if (!foundCompany) {
             throw new NotFoundException('Company not found');
         }
 
         return foundCompany;
     }
 
-    async update(uuid: string, dto: UpdateCompanyDto): Promise<Company> {
-        await this.companyRepository.update(uuid, dto);
+    async update(
+        user: ActiveUserData,
+        uuid: string,
+        dto: UpdateCompanyDto,
+    ): Promise<Company> {
+        const { roles } = user;
 
-        return this.findOne(uuid);
+        if (roles.includes(RolesEnum.ADMIN)) {
+            await this.companyRepository.update(uuid, dto);
+        } else {
+            const foundCompany = await this._checkIsCompanyEmployee(user, uuid);
+            if (foundCompany) await this.companyRepository.update(uuid, dto);
+        }
+
+        return this.companyRepository.findOneBy({ uuid });
         // const newEmployees = [];
         // const newServices = [];
 
@@ -103,17 +127,75 @@ export class CompanyService {
         return this.companyRepository.delete(uuid);
     }
 
-    async findCompanyEmployees(uuid: string, dto: FindAllQueryDto) {
-        return this.employeeService.findAll({
+    async findCompanyEmployees(
+        user: ActiveUserData,
+        uuid: string,
+        dto: FindAllQueryDto,
+    ) {
+        const employees = await this.employeeService.findAll({
             ...dto,
             company_uuid: uuid,
         });
+
+        const { roles } = user;
+
+        if (roles.includes(RolesEnum.ADMIN)) {
+            return employees;
+        } else {
+            const isCompanyEmployee = Boolean(
+                await this._checkIsCompanyEmployee(user, uuid),
+            );
+
+            if (isCompanyEmployee) {
+                return employees;
+            }
+        }
     }
 
-    async findCompanyServices(uuid: string, dto: FindAllQueryDto) {
-        return this.serviceService.findAll({
+    async findCompanyServices(
+        user: ActiveUserData,
+        uuid: string,
+        dto: FindAllQueryDto,
+    ) {
+        const services = await this.serviceService.findAll({
             ...dto,
             company_uuid: uuid,
         });
+
+        const { roles } = user;
+
+        if (roles.includes(RolesEnum.ADMIN)) {
+            return services;
+        } else {
+            const isCompanyEmployee = Boolean(
+                await this._checkIsCompanyEmployee(user, uuid),
+            );
+
+            if (isCompanyEmployee) {
+                return services;
+            }
+        }
+    }
+
+    async _checkIsCompanyEmployee(
+        user: ActiveUserData,
+        uuid: string,
+    ): Promise<Company> {
+        const employee = await this.employeeService.findOneByUserId(user.sub);
+        const foundCompany = await this.companyRepository.findOne({
+            where: { uuid: uuid },
+        });
+
+        if (!foundCompany) {
+            throw new NotFoundException('Company not found');
+        }
+
+        const isCompanyEmployee = foundCompany.uuid === employee.company.uuid;
+
+        if (!isCompanyEmployee) {
+            throw new ForbiddenException();
+        }
+
+        return foundCompany;
     }
 }

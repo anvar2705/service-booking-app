@@ -106,7 +106,7 @@ export class EmployeeService {
     async findOneByUserId(id: number, disableNotFoundException?: boolean) {
         const employee = await this.employeeRepository.findOne({
             where: { user: { id } },
-            relations: ['user'],
+            relations: ['user', 'company'],
         });
 
         if (!disableNotFoundException && !employee) {

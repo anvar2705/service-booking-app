@@ -32,7 +32,7 @@ export class Employee {
     @ManyToMany(() => Service, (service) => service.employees)
     services: Service[];
 
-    @OneToOne(() => User)
+    @OneToOne(() => User, { eager: true })
     @JoinColumn()
     user: User;
 

@@ -48,8 +48,6 @@ export class AuthenticationService {
             RolesEnum.COMPANY_OWNER,
         );
 
-        console.log('companyOwnerRole', companyOwnerRole);
-
         await this.employeeService.create({
             ...employeeDto,
             company_uuid: company.uuid,
