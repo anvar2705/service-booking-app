@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ConfigEnum } from 'common';
@@ -16,7 +16,7 @@ import { Employee } from './entities/employee.entity';
             [Employee, Company],
             ConfigEnum.DB_CONNECTION_NAME,
         ),
-        ServiceModule,
+        forwardRef(() => ServiceModule),
         UserModule,
     ],
     controllers: [EmployeeController],

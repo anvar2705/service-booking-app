@@ -65,7 +65,7 @@ export class EmployeeController {
         return this.employeeService.findEmployeeServices(user, id, dto);
     }
 
-    @Roles([RolesEnum.ADMIN, RolesEnum.COMPANY_OWNER])
+    @Roles([RolesEnum.ADMIN, RolesEnum.COMPANY_OWNER, RolesEnum.EMPLOYEE])
     @Post(':id/services')
     addServices(
         @ActiveUser() user: ActiveUserData,

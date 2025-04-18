@@ -20,12 +20,12 @@ import { HashingService } from './hashing/hashing.service';
 
 @Module({
     imports: [
-        forwardRef(() => UserModule),
         JwtModule.registerAsync(jwtConfig.asProvider()),
         ConfigModule.forFeature(jwtConfig),
         ConfigModule.forRoot({
             load: [redisConfig],
         }),
+        forwardRef(() => UserModule),
         forwardRef(() => CompanyModule),
         forwardRef(() => RoleModule),
         forwardRef(() => EmployeeModule),

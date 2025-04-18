@@ -1,6 +1,8 @@
 import {
     BadRequestException,
     ForbiddenException,
+    forwardRef,
+    Inject,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -12,7 +14,7 @@ import { WithPaginationResponse } from 'common/types';
 import { FindAllQueryDto, getPagPayload } from 'common/utils';
 import { Company } from 'models/company/entities/company.entity';
 import { ActiveUserData } from 'models/iam/decorators';
-import { checkAdmin } from 'models/iam/utils.ts/checkAdmin';
+import { checkIsAdmin } from 'models/iam/utils/checkIsAdmin';
 import { RolesEnum } from 'models/role/constants';
 import { ServiceService } from 'models/service/service.service';
 import { UserService } from 'models/user/user.service';
@@ -27,10 +29,11 @@ export class EmployeeService {
     constructor(
         @InjectRepository(Employee, ConfigEnum.DB_CONNECTION_NAME)
         private readonly employeeRepository: Repository<Employee>,
-        private readonly serviceService: ServiceService,
         private readonly userService: UserService,
         @InjectRepository(Company, ConfigEnum.DB_CONNECTION_NAME)
         private readonly companyRepository: Repository<Company>,
+        @Inject(forwardRef(() => ServiceService))
+        private readonly serviceService: ServiceService,
     ) {}
 
     async create(dto: CreateEmployeeDto): Promise<Employee> {
@@ -127,17 +130,18 @@ export class EmployeeService {
     ) {
         const employee = await this.findOne(id);
 
-        const isAdmin = checkAdmin(user);
-        const isCompanyOwner = await this._checkCompanyOwner(
+        const isAdmin = checkIsAdmin(user);
+        const isCompanyEmployee = await this.checkIsCompanyEmployee(
             user,
             employee.company.uuid,
+            id,
         );
 
-        if (!isAdmin && !isCompanyOwner && user.employee_id !== id) {
+        if (!isAdmin && !isCompanyEmployee) {
             throw new ForbiddenException();
         }
 
-        return this.serviceService.findAll({
+        return this.serviceService.findAll(user, {
             ...dto,
             employee_id: id,
         });
@@ -152,13 +156,14 @@ export class EmployeeService {
 
         const employee = await this.findOne(id);
 
-        const isAdmin = checkAdmin(user);
-        const isCompanyOwner = await this._checkCompanyOwner(
+        const isAdmin = checkIsAdmin(user);
+        const isCompanyEmployee = await this.checkIsCompanyEmployee(
             user,
             employee.company.uuid,
+            id,
         );
 
-        if (!isAdmin && !isCompanyOwner && user.employee_id !== id) {
+        if (!isAdmin && !isCompanyEmployee) {
             throw new ForbiddenException();
         }
 
@@ -181,8 +186,8 @@ export class EmployeeService {
     async remove(user: ActiveUserData, id: number) {
         const employee = await this.findOne(id);
 
-        const isAdmin = checkAdmin(user);
-        const isCompanyOwner = await this._checkCompanyOwner(
+        const isAdmin = checkIsAdmin(user);
+        const isCompanyOwner = await this.checkIsCompanyOwner(
             user,
             employee.company.uuid,
         );
@@ -208,13 +213,14 @@ export class EmployeeService {
             throw new NotFoundException('Employee not found');
         }
 
-        const isAdmin = checkAdmin(user);
-        const isCompanyOwner = await this._checkCompanyOwner(
+        const isAdmin = checkIsAdmin(user);
+        const isCompanyEmployee = await this.checkIsCompanyEmployee(
             user,
             employee.company.uuid,
+            id,
         );
 
-        if (!isAdmin && !isCompanyOwner) {
+        if (!isAdmin && !isCompanyEmployee) {
             throw new ForbiddenException();
         }
 
@@ -237,11 +243,32 @@ export class EmployeeService {
         return this.employeeRepository.save(employee);
     }
 
-    async _checkCompanyOwner(user: ActiveUserData, company_uuid: string) {
+    async checkIsCompanyOwner(user: ActiveUserData, company_uuid: string) {
         const activeEmployee = await this.findOne(user.employee_id);
 
         return (
             user.roles.includes(RolesEnum.COMPANY_OWNER) &&
+            activeEmployee.company.uuid === company_uuid
+        );
+    }
+
+    async checkIsCompanyEmployee(
+        user: ActiveUserData,
+        company_uuid: string,
+        id: number,
+    ) {
+        const activeEmployee = await this.findOne(user.employee_id);
+
+        if (
+            user.roles.includes(RolesEnum.COMPANY_OWNER) &&
+            activeEmployee.company.uuid === company_uuid
+        ) {
+            return true;
+        }
+
+        return (
+            user.roles.includes(RolesEnum.EMPLOYEE) &&
+            user.employee_id === id &&
             activeEmployee.company.uuid === company_uuid
         );
     }

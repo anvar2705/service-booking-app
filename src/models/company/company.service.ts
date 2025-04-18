@@ -157,7 +157,7 @@ export class CompanyService {
         uuid: string,
         dto: FindAllQueryDto,
     ) {
-        const services = await this.serviceService.findAll({
+        const services = await this.serviceService.findAll(user, {
             ...dto,
             company_uuid: uuid,
         });
