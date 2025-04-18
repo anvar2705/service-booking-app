@@ -181,7 +181,8 @@ export class CompanyService {
         user: ActiveUserData,
         uuid: string,
     ): Promise<Company> {
-        const employee = await this.employeeService.findOneByUserId(user.sub);
+        const employee = await this.employeeService.findOne(user.employee_id);
+
         const foundCompany = await this.companyRepository.findOne({
             where: { uuid: uuid },
         });

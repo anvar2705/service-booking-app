@@ -6,6 +6,7 @@ export interface ActiveUserData {
     sub: number;
     email: string;
     roles: Role[];
+    employee_id?: number;
 }
 
 export const REQUEST_USER_KEY = 'user';

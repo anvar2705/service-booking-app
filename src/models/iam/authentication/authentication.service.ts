@@ -73,7 +73,12 @@ export class AuthenticationService {
             throw new UnauthorizedException('Wrong credentials');
         }
 
-        return this.generateTokens(user);
+        const employee = await this.employeeService.findOneByUserId(
+            user.id,
+            true,
+        );
+
+        return this.generateTokens({ ...user, employee_id: employee?.id });
     }
 
     async resreshTokens(dto: RefreshTokenDto) {
@@ -96,7 +101,12 @@ export class AuthenticationService {
                 throw new InvalidatedRefreshTokenError();
             }
 
-            return this.generateTokens(user);
+            const employee = await this.employeeService.findOneByUserId(
+                user.id,
+                true,
+            );
+
+            return this.generateTokens({ ...user, employee_id: employee.id });
         } catch (error) {
             if (error instanceof InvalidatedRefreshTokenError) {
                 throw new UnauthorizedException('Access denied');
@@ -106,16 +116,17 @@ export class AuthenticationService {
         }
     }
 
-    async generateTokens(user: User) {
+    async generateTokens(user: User & { employee_id?: number }) {
         const refreshTokenId = randomUUID();
 
         const [access_token, refresh_token] = await Promise.all([
-            this.signToken<Pick<ActiveUserData, 'email' | 'roles'>>(
+            this.signToken<Omit<ActiveUserData, 'sub'>>(
                 user.id,
                 Number(this.jwtConfiguration.accessTokenTTL),
                 {
                     email: user.email,
                     roles: user.roles.map((r) => r.name as Role),
+                    employee_id: user.employee_id,
                 },
             ),
             this.signToken(
@@ -146,8 +157,8 @@ export class AuthenticationService {
     }
 
     async getAccountInfo(dto: ActiveUserData) {
-        const { sub } = dto;
+        const { employee_id } = dto;
 
-        return this.employeeService.findOneByUserId(sub);
+        return this.employeeService.findOne(employee_id);
     }
 }

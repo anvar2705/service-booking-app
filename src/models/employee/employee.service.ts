@@ -1,5 +1,6 @@
 import {
     BadRequestException,
+    ForbiddenException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +11,9 @@ import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
 import { FindAllQueryDto, getPagPayload } from 'common/utils';
 import { Company } from 'models/company/entities/company.entity';
+import { ActiveUserData } from 'models/iam/decorators';
+import { checkAdmin } from 'models/iam/utils.ts/checkAdmin';
+import { RolesEnum } from 'models/role/constants';
 import { ServiceService } from 'models/service/service.service';
 import { UserService } from 'models/user/user.service';
 
@@ -116,48 +120,102 @@ export class EmployeeService {
         return employee;
     }
 
-    async findEmployeeServices(id: number, dto: FindAllQueryDto) {
-        const employeeServices = await this.serviceService.findAll({
+    async findEmployeeServices(
+        user: ActiveUserData,
+        id: number,
+        dto: FindAllQueryDto,
+    ) {
+        const employee = await this.findOne(id);
+
+        const isAdmin = checkAdmin(user);
+        const isCompanyOwner = await this._checkCompanyOwner(
+            user,
+            employee.company.uuid,
+        );
+
+        if (!isAdmin && !isCompanyOwner && user.employee_id !== id) {
+            throw new ForbiddenException();
+        }
+
+        return this.serviceService.findAll({
             ...dto,
             employee_id: id,
         });
-        return employeeServices;
     }
 
-    async update(id: number, dto: UpdateEmployeeDto): Promise<Employee> {
+    async update(
+        user: ActiveUserData,
+        id: number,
+        dto: UpdateEmployeeDto,
+    ): Promise<Employee> {
         const { username, email, password, role_ids, ...employeeDto } = dto;
 
         const employee = await this.findOne(id);
+
+        const isAdmin = checkAdmin(user);
+        const isCompanyOwner = await this._checkCompanyOwner(
+            user,
+            employee.company.uuid,
+        );
+
+        if (!isAdmin && !isCompanyOwner && user.employee_id !== id) {
+            throw new ForbiddenException();
+        }
 
         if (employeeDto) {
             await this.employeeRepository.update(id, employeeDto);
         }
 
-        if (employee) {
-            if (username || email || password || role_ids) {
-                await this.userService.update(employee.user.id, {
-                    username,
-                    email,
-                    password,
-                    role_ids,
-                });
-            }
+        if (username || email || password || role_ids) {
+            await this.userService.update(employee.user.id, {
+                username,
+                email,
+                password,
+                role_ids,
+            });
         }
 
         return this.findOne(id);
     }
 
-    remove(id: number) {
+    async remove(user: ActiveUserData, id: number) {
+        const employee = await this.findOne(id);
+
+        const isAdmin = checkAdmin(user);
+        const isCompanyOwner = await this._checkCompanyOwner(
+            user,
+            employee.company.uuid,
+        );
+
+        if (!isAdmin && !isCompanyOwner) {
+            throw new ForbiddenException();
+        }
+
         return this.employeeRepository.delete(id);
     }
 
-    async addServicesToEmployee(id: number, service_uuids: string[]) {
+    async addServicesToEmployee(
+        user: ActiveUserData,
+        id: number,
+        service_uuids: string[],
+    ) {
         const employee = await this.employeeRepository.findOne({
             where: { id },
-            relations: { services: true },
+            relations: { services: true, company: true },
         });
+
         if (!employee) {
             throw new NotFoundException('Employee not found');
+        }
+
+        const isAdmin = checkAdmin(user);
+        const isCompanyOwner = await this._checkCompanyOwner(
+            user,
+            employee.company.uuid,
+        );
+
+        if (!isAdmin && !isCompanyOwner) {
+            throw new ForbiddenException();
         }
 
         if (!employee.services) employee.services = [];
@@ -177,5 +235,14 @@ export class EmployeeService {
         }
 
         return this.employeeRepository.save(employee);
+    }
+
+    async _checkCompanyOwner(user: ActiveUserData, company_uuid: string) {
+        const activeEmployee = await this.findOne(user.employee_id);
+
+        return (
+            user.roles.includes(RolesEnum.COMPANY_OWNER) &&
+            activeEmployee.company.uuid === company_uuid
+        );
     }
 }
