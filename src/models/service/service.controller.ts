@@ -20,7 +20,7 @@ import { RemoveServiceDto } from './dto/remove-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { ServiceService } from './service.service';
 
-@Controller('service')
+@Controller('services')
 export class ServiceController {
     constructor(private readonly serviceService: ServiceService) {}
 

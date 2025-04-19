@@ -15,7 +15,7 @@ import { FindAllRecordsDto } from './dto/find-all-records.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { RecordService } from './record.service';
 
-@Controller('record')
+@Controller('records')
 export class RecordController {
     constructor(private readonly recordService: RecordService) {}
 

@@ -20,7 +20,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeService } from './employee.service';
 
-@Controller('employee')
+@Controller('employees')
 export class EmployeeController {
     constructor(private readonly employeeService: EmployeeService) {}
 
