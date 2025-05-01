@@ -11,6 +11,7 @@ import { FindAllQueryDto, ToBoolean } from 'common/utils';
 export enum FindAllEmployeesSortingEnum {
     NAME = 'name',
     USERNAME = 'username',
+    EMAIL = 'email',
 }
 
 class FindAllEmployeesSortingDto {
