@@ -18,6 +18,7 @@ import { RolesEnum } from 'models/role/constants';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { FindAllCompaniesDto } from './dto/find-all-companies.dto';
+import { FindAllCompanyEmployeesDto } from './dto/find-all-company-employees.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 
 @Controller('companies')
@@ -66,7 +67,7 @@ export class CompanyController {
     findEmployees(
         @ActiveUser() user: ActiveUserData,
         @Param('uuid', new ParseUUIDPipe()) uuid: string,
-        @Query() dto: FindAllQueryDto,
+        @Query() dto: FindAllCompanyEmployeesDto,
     ) {
         return this.companyService.findCompanyEmployees(user, uuid, dto);
     }

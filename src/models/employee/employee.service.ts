@@ -7,7 +7,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
@@ -20,7 +20,10 @@ import { ServiceService } from 'models/service/service.service';
 import { UserService } from 'models/user/user.service';
 
 import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { FindAllEmployeesDto } from './dto/find-all-employees.dto';
+import {
+    FindAllEmployeesDto,
+    FindAllEmployeesSortingEnum,
+} from './dto/find-all-employees.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './entities/employee.entity';
 
@@ -74,14 +77,29 @@ export class EmployeeService {
     async findAll(
         dto: FindAllEmployeesDto,
     ): Promise<WithPaginationResponse<Employee>> {
-        const { company_uuid } = dto;
+        const { company_uuid, sorting } = dto;
         const { offset, payload } = getPagPayload(dto);
+
+        let order: FindOptionsOrder<Employee>;
+
+        if (sorting) {
+            const { id, desc } = sorting;
+            if (id === FindAllEmployeesSortingEnum.NAME) {
+                order = {
+                    [id]: desc ? 'DESC' : 'ASC',
+                };
+            } else {
+                order = {
+                    user: {
+                        [id]: desc ? 'DESC' : 'ASC',
+                    },
+                };
+            }
+        }
 
         const [items, count] = await this.employeeRepository.findAndCount({
             ...payload,
-            order: {
-                name: 'ASC',
-            },
+            order,
             where: { company: { uuid: company_uuid } },
             relations: {
                 user: true,

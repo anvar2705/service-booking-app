@@ -16,6 +16,7 @@ import { ServiceService } from 'models/service/service.service';
 
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { FindAllCompaniesDto } from './dto/find-all-companies.dto';
+import { FindAllCompanyEmployeesDto } from './dto/find-all-company-employees.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { Company } from './entities/company.entity';
 
@@ -130,7 +131,7 @@ export class CompanyService {
     async findCompanyEmployees(
         user: ActiveUserData,
         uuid: string,
-        dto: FindAllQueryDto,
+        dto: FindAllCompanyEmployeesDto,
     ) {
         const employees = await this.employeeService.findAll({
             ...dto,
