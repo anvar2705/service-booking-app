@@ -7,7 +7,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsOrder, Repository } from 'typeorm';
+import { FindOptionsOrder, ILike, Repository } from 'typeorm';
 
 import { ConfigEnum } from 'common';
 import { WithPaginationResponse } from 'common/types';
@@ -77,7 +77,7 @@ export class EmployeeService {
     async findAll(
         dto: FindAllEmployeesDto,
     ): Promise<WithPaginationResponse<Employee>> {
-        const { company_uuid, sorting } = dto;
+        const { company_uuid, sorting, filters } = dto;
         const { offset, payload } = getPagPayload(dto);
 
         let order: FindOptionsOrder<Employee>;
@@ -97,10 +97,19 @@ export class EmployeeService {
             }
         }
 
+        const where = { company: { uuid: company_uuid }, user: {} };
+        if (filters && filters.length > 0) {
+            filters.forEach((f) => {
+                if (!where['user'][f.id]) {
+                    where['user'][f.id] = ILike(`%${f.value}%`);
+                }
+            });
+        }
+
         const [items, count] = await this.employeeRepository.findAndCount({
             ...payload,
             order,
-            where: { company: { uuid: company_uuid } },
+            where,
             relations: {
                 user: true,
             },
