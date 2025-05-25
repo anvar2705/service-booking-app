@@ -199,6 +199,7 @@ export class EmployeeService {
         }
 
         if (username || email || password || role_ids) {
+            // TODO проверить cascade: true
             await this.userService.update(employee.user.id, {
                 username,
                 email,
@@ -223,7 +224,8 @@ export class EmployeeService {
             throw new ForbiddenException();
         }
 
-        return this.employeeRepository.delete(id);
+        await this.employeeRepository.delete(id);
+        return this.userService.delete(employee.user.id);
     }
 
     async addServicesToEmployee(
